@@ -265,8 +265,18 @@ page {
 .no-data {
   text-align: center;
   padding: 100rpx 0;
-  color: #999;
+  color: #666;
   font-size: 30rpx;
+  line-height: 1.5;
+}
+
+.no-data text {
+  display: block;
+  background-color: #f8f8f8;
+  margin: 0 auto;
+  padding: 30rpx;
+  border-radius: 10rpx;
+  max-width: 80%;
 }
 
 /* 返回顶部按钮样式 */

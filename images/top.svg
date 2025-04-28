@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg">
-  <title>返回顶部</title>
-  <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-    <circle fill="#3A8FB7" opacity="0.9" cx="24" cy="24" r="24"></circle>
-    <path d="M24,14 L33,23 L28,23 L28,34 L20,34 L20,23 L15,23 L24,14 Z" fill="#FFFFFF" fill-rule="nonzero"></path>
-  </g>
-</svg> 

@@ -12,17 +12,14 @@
   <!-- 分类导航栏 -->
   <view class="category-nav">
     <scroll-view scroll-x enable-flex class="category-scroll">
-      <view class="category-item {{currentCategory === 0 ? 'active' : ''}}" bindtap="switchCategory" data-id="0">
-        <text>全部</text>
-      </view>
       <view wx:for="{{categories}}" wx:key="id" class="category-item {{currentCategory === item.id ? 'active' : ''}}" bindtap="switchCategory" data-id="{{item.id}}">
         <text>{{item.name}}</text>
       </view>
     </scroll-view>
   </view>
 
-  <!-- 轮播图 -->
-  <view class="swiper-container">
+  <!-- 轮播图 - 仅在新闻动态分类下显示 -->
+  <view class="swiper-container" wx:if="{{showSwiper}}">
     <swiper class="swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
       <swiper-item>
         <image src="https://www.yubi.wang/uploads/20241205/7ac1705d502f4ff471ed5f1c0d8e06a7.jpg" mode="aspectFill" class="swiper-image"></image>
@@ -36,7 +33,8 @@
   <!-- 文章列表 -->
   <view class="article-list">
     <view class="no-data" wx:if="{{noData}}">
-      <text>暂无文章</text>
+      <text wx:if="{{currentCategory === 7 || currentCategory === 11}}">专家数据正在整理中，敬请期待...</text>
+      <text wx:else>暂无文章</text>
     </view>
     <block wx:else>
       <view class="article-item" wx:for="{{filteredArticles}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">

@@ -23,19 +23,33 @@ Page({
     noData: false,
     // 分类相关
     categories: [
-      { id: 4, name: '科技前沿' },
-      { id: 5, name: '时代观察' },
-      { id: 6, name: '企业动态' },
-      { id: 3, name: '行业资讯' },
-      { id: 2, name: '玉鼻优品' }
+      { id: 1, name: '新闻动态' },
+      { id: 7, name: '签约专家' },
+      { id: 11, name: '授权专家' },
+      { id: 2, name: '玉鼻优品' },
+      { id: 12, name: '学术公告' }
     ],
-    currentCategory: 0, // 0表示全部
+    currentCategory: 1, // 设置新闻动态为默认分类
     searchKeyword: '', // 搜索关键词
     isSearching: false, // 是否处于搜索模式
-    showBackToTop: false // 是否显示返回顶部按钮
+    showBackToTop: false, // 是否显示返回顶部按钮
+    showSwiper: true // 是否显示轮播图
   },
   
-  onLoad() {
+  onLoad(options) {
+    // 处理分享参数
+    if (options.category) {
+      const categoryId = Number(options.category);
+      if (categoryId !== this.data.currentCategory) {
+        this.setData({ 
+          currentCategory: categoryId,
+          // 只有新闻动态分类显示轮播图
+          showSwiper: categoryId === 1
+        });
+      }
+    }
+    
+    // 加载文章列表
     this.loadArticles(true);
   },
   
@@ -107,12 +121,25 @@ Page({
     this.setData({ 
       currentCategory: categoryId,
       searchKeyword: '', // 切换分类时清空搜索词
-      isSearching: false // 退出搜索模式
+      isSearching: false, // 退出搜索模式
+      // 只有新闻动态分类显示轮播图
+      showSwiper: categoryId === 1
     });
+    
+    // 如果是"签约专家"或"授权专家"分类，显示提示消息
+    if (categoryId === 7 || categoryId === 11) {
+      wx.showToast({
+        title: '专家数据整理中',
+        icon: 'none',
+        duration: 2000
+      });
+    }
+    
     this.filterArticles();
     
     // 如果过滤后的文章太少，加载更多
-    if (this.data.filteredArticles.length < 5 && this.data.hasMore) {
+    if (this.data.filteredArticles.length < 5 && this.data.hasMore && 
+        categoryId !== 7 && categoryId !== 11) { // 排除签约专家和授权专家
       this.loadMoreForCategory();
     }
   },
@@ -140,13 +167,26 @@ Page({
       return;
     }
     
-    if (currentCategory === 0) {
-      filteredArticles = articles;
+    if (currentCategory === 1) {
+      // 新闻动态 - channel_id为3 4 5 6的文章
+      filteredArticles = articles.filter(item => 
+        [3, 4, 5, 6].includes(item.channel_id)
+      );
     } else if (currentCategory === 2) {
+      // 玉鼻优品 - channel_id为2 8 9 10 26的文章
       filteredArticles = articles.filter(item => 
         [2, 8, 9, 10, 26].includes(item.channel_id)
       );
+    } else if (currentCategory === 12) {
+      // 学术公告 - channel_id为16的文章
+      filteredArticles = articles.filter(item => 
+        item.channel_id === 16
+      );
+    } else if (currentCategory === 7 || currentCategory === 11) {
+      // 签约专家和授权专家暂时不展示任何文章
+      filteredArticles = [];
     } else {
+      // 其它分类按照ID精确匹配
       filteredArticles = articles.filter(item => 
         item.channel_id === currentCategory
       );
@@ -346,23 +386,6 @@ Page({
       query: query,
       imageUrl: imageUrl
     };
-  },
-  
-  /**
-   * 生命周期函数--监听页面加载
-   * 处理分享进入的场景
-   */
-  onLoad(options) {
-    // 处理分享参数
-    if (options.category) {
-      const categoryId = Number(options.category);
-      if (categoryId !== this.data.currentCategory) {
-        this.setData({ currentCategory: categoryId });
-      }
-    }
-    
-    // 加载文章列表
-    this.loadArticles(true);
   },
   
   // 页面滚动事件处理函数
