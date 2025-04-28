@@ -268,3 +268,27 @@ page {
   color: #999;
   font-size: 30rpx;
 }
+
+/* 返回顶部按钮样式 */
+.back-to-top {
+  position: fixed;
+  bottom: 100rpx;
+  right: 30rpx;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: #3A8FB7;
+  box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  color: white;
+  font-size: 40rpx;
+  font-weight: bold;
+}
+
+.back-to-top image {
+  width: 50rpx;
+  height: 50rpx;
+}

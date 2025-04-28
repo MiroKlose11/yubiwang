@@ -196,4 +196,28 @@ view, text, image {
   border-radius: 8rpx;
   border: 1rpx solid #eee;
   box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.1);
+}
+
+/* 特殊图片区域 */
+.special-image-area {
+  margin-top: 30rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.special-image {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 10rpx auto;
+}
+
+.special-image-tip {
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+  margin-top: 10rpx;
+  margin-bottom: 20rpx;
 } 

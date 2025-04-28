@@ -31,7 +31,8 @@ Page({
     ],
     currentCategory: 0, // 0表示全部
     searchKeyword: '', // 搜索关键词
-    isSearching: false // 是否处于搜索模式
+    isSearching: false, // 是否处于搜索模式
+    showBackToTop: false // 是否显示返回顶部按钮
   },
   
   onLoad() {
@@ -362,5 +363,28 @@ Page({
     
     // 加载文章列表
     this.loadArticles(true);
+  },
+  
+  // 页面滚动事件处理函数
+  onPageScroll(e) {
+    // 当滚动超过一定距离时显示返回顶部按钮
+    if (e.scrollTop > 300 && !this.data.showBackToTop) {
+      this.setData({
+        showBackToTop: true
+      });
+    } else if (e.scrollTop <= 300 && this.data.showBackToTop) {
+      this.setData({
+        showBackToTop: false
+      });
+    }
+  },
+  
+  // 返回顶部点击事件
+  backToTop() {
+    // 使用微信原生API快速返回顶部
+    wx.pageScrollTo({
+      scrollTop: 0,
+      duration: 300
+    });
   }
 });

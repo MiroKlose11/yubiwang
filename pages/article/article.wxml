@@ -21,26 +21,21 @@
       </view>
     </view>
     
-    <!-- 文章内容，添加点击事件 -->
-    <view class="article-content" bindtap="onArticleContentTap">
+    <!-- 文章内容 -->
+    <view class="article-content">
       <rich-text class="rich-content" nodes="{{article.content}}"></rich-text>
     </view>
     
-    <!-- 图片列表区域 -->
-    <view class="image-list-area" wx:if="{{imageList.length > 0}}">
-      <view class="image-list-title">文章图片({{imageList.length}}张):</view>
-      <view class="image-list">
-        <block wx:for="{{imageList}}" wx:key="index">
-          <image 
-            class="image-thumb" 
-            src="{{item}}" 
-            data-src="{{item}}" 
-            data-index="{{index}}" 
-            bindtap="previewImage"
-            mode="aspectFill"
-          ></image>
-        </block>
-      </view>
+    <!-- 特殊图片区域(二维码等) -->
+    <view class="special-image-area" wx:if="{{hasSpecialImage}}">
+      <image 
+        class="special-image"
+        src="{{specialImage}}"
+        mode="widthFix"
+        bindtap="previewSpecialImage"
+        show-menu-by-longpress="true"
+      ></image>
+      <view class="special-image-tip">长按图片识别二维码</view>
     </view>
   </view>
 </view> 

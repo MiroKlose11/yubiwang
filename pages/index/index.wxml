@@ -64,4 +64,9 @@
       <view wx:elif="{{!hasMore && filteredArticles.length > 0}}" class="no-more">没有更多了</view>
     </view>
   </view>
+  
+  <!-- 返回顶部按钮 -->
+  <view class="back-to-top" hidden="{{!showBackToTop}}" bindtap="backToTop">
+    <text>↑</text>
+  </view>
 </view>
