@@ -1,0 +1,51 @@
+<!--search.wxml-->
+<view class="search-page">
+  <!-- 搜索栏 -->
+  <view class="search-header">
+    <view class="search-box">
+      <icon type="search" size="16" color="#999"></icon>
+      <input type="text" placeholder="请输入关键词搜索" confirm-type="search" value="{{keyword}}" bindinput="onKeywordInput" bindconfirm="doSearch" focus="{{true}}"></input>
+      <view class="search-btn" bindtap="doSearch">搜索</view>
+    </view>
+  </view>
+
+  <!-- 搜索结果 -->
+  <view class="search-result">
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading">加载中...</view>
+    </view>
+
+    <!-- 无搜索结果 -->
+    <view class="empty-container" wx:elif="{{searchResults.length === 0 && !loading}}">
+      <view class="empty-text">没有找到相关内容</view>
+    </view>
+
+    <!-- 有搜索结果 -->
+    <view class="result-list" wx:else>
+      <view class="article-item" wx:for="{{searchResults}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">
+        <view class="article-image" wx:if="{{item.image}}">
+          <image src="{{item.image}}" mode="aspectFill"></image>
+        </view>
+        <view class="article-info">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
+          <view class="article-meta">
+            <text class="article-time">{{item.createTime}}</text>
+            <text class="article-author" wx:if="{{item.author}}">{{item.author}}</text>
+            <view class="view-stats">
+              <text class="view-label">阅读：</text>
+              <text class="view-count">{{item.views || 0}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载状态 -->
+      <view class="loading-status">
+        <view wx:if="{{loadingMore}}" class="loading">加载更多中...</view>
+        <view wx:elif="{{!hasMore && searchResults.length > 0}}" class="no-more">没有更多了</view>
+      </view>
+    </view>
+  </view>
+</view> 

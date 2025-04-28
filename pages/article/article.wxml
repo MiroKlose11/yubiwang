@@ -1,0 +1,46 @@
+<!--文章详情页-->
+<view class="container">
+  <view class="loading" wx:if="{{loading}}">加载中...</view>
+  
+  <view class="error-container" wx:elif="{{error}}">
+    <view class="error-message">文章加载失败</view>
+    <button class="back-btn" bindtap="goBack">返回列表</button>
+  </view>
+  
+  <view class="article-container" wx:elif="{{article}}">
+    <!-- 文章标题 -->
+    <view class="article-title">{{article.title}}</view>
+    
+    <!-- 文章元信息 -->
+    <view class="article-meta">
+      <view class="article-time">{{article.createTime}}</view>
+      <view class="article-author" wx:if="{{article.author}}">作者：{{article.author}}</view>
+      <view class="article-views" wx:if="{{article.views}}">
+        <text class="views-label">阅读：</text>
+        <text class="views-count">{{article.views}}</text>
+      </view>
+    </view>
+    
+    <!-- 文章内容，添加点击事件 -->
+    <view class="article-content" bindtap="onArticleContentTap">
+      <rich-text class="rich-content" nodes="{{article.content}}"></rich-text>
+    </view>
+    
+    <!-- 图片列表区域 -->
+    <view class="image-list-area" wx:if="{{imageList.length > 0}}">
+      <view class="image-list-title">文章图片({{imageList.length}}张):</view>
+      <view class="image-list">
+        <block wx:for="{{imageList}}" wx:key="index">
+          <image 
+            class="image-thumb" 
+            src="{{item}}" 
+            data-src="{{item}}" 
+            data-index="{{index}}" 
+            bindtap="previewImage"
+            mode="aspectFill"
+          ></image>
+        </block>
+      </view>
+    </view>
+  </view>
+</view> 

@@ -1,0 +1,199 @@
+/* 文章页样式 */
+.container {
+  padding: 30rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: #333;
+  background-color: #fff;
+}
+
+/* 加载状态 */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100rpx;
+  color: #999;
+}
+
+/* 错误提示 */
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50rpx 0;
+}
+
+.error-message {
+  font-size: 30rpx;
+  color: #999;
+  margin-bottom: 30rpx;
+}
+
+.back-btn {
+  width: 200rpx;
+  height: 70rpx;
+  line-height: 70rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #fff;
+  background-color: #3A8FB7;
+  border-radius: 8rpx;
+}
+
+/* 文章容器 */
+.article-container {
+  padding-bottom: 40rpx;
+}
+
+/* 文章标题 */
+.article-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  line-height: 1.4;
+  margin-bottom: 30rpx;
+}
+
+/* 文章元信息 */
+.article-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  color: #999;
+  font-size: 24rpx;
+  margin-bottom: 30rpx;
+}
+
+.article-time {
+  margin-right: 20rpx;
+}
+
+.article-author {
+  margin-right: 20rpx;
+}
+
+.article-views {
+  display: flex;
+  align-items: center;
+}
+
+/* 文章封面图 */
+.article-cover {
+  margin-bottom: 30rpx;
+  background-color: #f7f7f7;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.article-cover image {
+  width: 100%;
+  display: block;
+}
+
+/* 文章内容 */
+.article-content {
+  font-size: 30rpx;
+  line-height: 1.8;
+  color: #333;
+}
+
+/* 确保富文本内的图片自适应屏幕宽度 */
+.rich-content {
+  width: 100%;
+}
+
+/* 通过动态样式修复富文本中的图片宽度问题 */
+rich-text {
+  width: 100%;
+}
+
+/* 添加全局样式，强制 rich-text 中的图片适应屏幕宽度 */
+page {
+  --article-img-style: max-width:100% !important;width:100% !important;height:auto !important;
+}
+
+/* 重要：这是为了处理富文本中的图片样式问题 */
+.article-content image {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+/* CSS修复富文本中的样式问题 */
+view, text, image {
+  box-sizing: border-box;
+}
+
+/* 重置富文本所有图片样式 */
+.article-content image {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 20rpx auto !important;
+  box-sizing: border-box !important;
+}
+
+/* 针对特定图片样式 */
+.article-img {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  display: block !important;
+  margin: 20rpx auto !important;
+}
+
+/* 媒体查询确保文章内容在不同设备上显示合适 */
+@media screen and (min-width: 768px) {
+  .article-content image {
+    max-width: 70% !important;
+  }
+}
+
+/* 图片容器 */
+.img-container {
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+  margin: 20rpx 0;
+}
+
+/* 响应式布局 */
+@media screen and (max-width: 375px) {
+  .article-content {
+    font-size: 28rpx;
+  }
+  
+  .article-title {
+    font-size: 36rpx;
+  }
+}
+
+/* 图片列表区域 */
+.image-list-area {
+  margin-top: 30rpx;
+  padding: 20rpx;
+  background-color: #f7f7f7;
+  border-radius: 12rpx;
+}
+
+.image-list-title {
+  font-size: 28rpx;
+  color: #666;
+  margin-bottom: 20rpx;
+}
+
+.image-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+.image-thumb {
+  width: 160rpx;
+  height: 160rpx;
+  margin: 10rpx;
+  border-radius: 8rpx;
+  border: 1rpx solid #eee;
+  box-shadow: 0 2rpx 6rpx rgba(0,0,0,0.1);
+} 

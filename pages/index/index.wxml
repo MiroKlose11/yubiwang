@@ -1,0 +1,67 @@
+<!--index.wxml-->
+<view class="page-container">
+  <!-- 搜索栏 -->
+  <view class="search-container">
+    <view class="search-box">
+      <icon type="search" size="16" color="#999"></icon>
+      <input type="text" placeholder="请输入关键词搜索" confirm-type="search" value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm"></input>
+      <view class="search-btn" bindtap="onSearchConfirm" wx:if="{{searchKeyword}}">搜索</view>
+    </view>
+  </view>
+
+  <!-- 分类导航栏 -->
+  <view class="category-nav">
+    <scroll-view scroll-x enable-flex class="category-scroll">
+      <view class="category-item {{currentCategory === 0 ? 'active' : ''}}" bindtap="switchCategory" data-id="0">
+        <text>全部</text>
+      </view>
+      <view wx:for="{{categories}}" wx:key="id" class="category-item {{currentCategory === item.id ? 'active' : ''}}" bindtap="switchCategory" data-id="{{item.id}}">
+        <text>{{item.name}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 轮播图 -->
+  <view class="swiper-container">
+    <swiper class="swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
+      <swiper-item>
+        <image src="https://www.yubi.wang/uploads/20241205/7ac1705d502f4ff471ed5f1c0d8e06a7.jpg" mode="aspectFill" class="swiper-image"></image>
+      </swiper-item>
+      <swiper-item>
+        <image src="https://www.yubi.wang/uploads/20241205/e539472c636d30ee4065b9d11338f4a9.jpg" mode="aspectFill" class="swiper-image"></image>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- 文章列表 -->
+  <view class="article-list">
+    <view class="no-data" wx:if="{{noData}}">
+      <text>暂无文章</text>
+    </view>
+    <block wx:else>
+      <view class="article-item" wx:for="{{filteredArticles}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">
+        <view class="article-image" wx:if="{{item.image}}">
+          <image src="{{item.image}}" mode="aspectFill"></image>
+        </view>
+        <view class="article-info">
+          <view class="article-title">{{item.title}}</view>
+          <view class="article-desc">{{item.description}}</view>
+          <view class="article-meta">
+            <text class="article-time">{{item.createTime}}</text>
+            <text class="article-author" wx:if="{{item.author}}">{{item.author}}</text>
+            <view class="view-stats">
+              <text class="view-label">阅读：</text>
+              <text class="view-count">{{item.views || 0}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+    
+    <!-- 加载状态 -->
+    <view class="loading-status">
+      <view wx:if="{{loading}}" class="loading">加载中...</view>
+      <view wx:elif="{{!hasMore && filteredArticles.length > 0}}" class="no-more">没有更多了</view>
+    </view>
+  </view>
+</view>

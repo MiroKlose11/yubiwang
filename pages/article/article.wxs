@@ -1,0 +1,17 @@
+// article.wxs
+// WXS模块，用于辅助处理图片预览相关功能
+
+/**
+ * 为了让rich-text中的图片支持长按识别和预览
+ * 小程序会根据show-with-native-menu属性和图片的data-src属性自动处理
+ * 这个文件主要是通过wxs来设置一些必要的标记
+ */
+
+module.exports = {
+  // 这个方法在未来可能会用来处理图片点击事件
+  bindPreviewImage: function(e, instance) {
+    // 此处不需要实现功能，小程序会根据rich-text的show-with-native-menu属性
+    // 和图片的data-src自动处理长按菜单
+    return false;
+  }
+} 
