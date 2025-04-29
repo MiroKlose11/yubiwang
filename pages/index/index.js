@@ -6,6 +6,39 @@ const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia0
 // 服务器域名
 const HOST = 'https://www.yubi.wang';
 
+// 职称映射
+const TITLE_MAP = {
+  '7': '主任医师',
+  '8': '副主任医师',
+  '9': '主治医师',
+  '10': '助理医师',
+  '22': '住院医师',
+  '23': '医学生',
+  '24': '美学顾问',
+  '25': '运营管理'
+};
+
+// 专长映射
+const SPECIALTY_MAP = {
+  '18': '初鼻整形',
+  '19': '鼻修复',
+  '20': '眉弓',
+  '21': '鼻唇沟',
+  '26': '运营管理',
+  '28': '学术教育'
+};
+
+// 认证映射
+const AUTH_MAP = {
+  '27': '秘书',
+  '1': '顾问专家',
+  '2': '导师专家',
+  '3': '核心专家',
+  '4': '秘书长',
+  '5': '常务委员',
+  '6': '委员'
+};
+
 Page({
   data: {
     userInfo: {
@@ -33,7 +66,23 @@ Page({
     searchKeyword: '', // 搜索关键词
     isSearching: false, // 是否处于搜索模式
     showBackToTop: false, // 是否显示返回顶部按钮
-    showSwiper: true // 是否显示轮播图
+    showSwiper: true, // 是否显示轮播图
+    doctors: [], // 医生列表
+    doctorPage: 1, // 医生列表页码
+    doctorHasMore: true, // 医生列表是否有更多
+    doctorLoading: false, // 医生列表加载状态
+    activeFilter: '', // 当前激活的筛选类型
+    selectedAuth: '', // 选中的认证
+    selectedTitle: '', // 选中的职称
+    selectedLocation: '', // 选中的地点
+    selectedSpecialty: '', // 选中的专长
+    selectedLetter: '', // 选中的姓氏首字母
+    letters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'W', 'X', 'Y', 'Z'],
+    locations: [], // 所有医生的执业地点列表
+    filteredDoctors: [], // 筛选后的医生列表
+    AUTH_MAP: AUTH_MAP,
+    TITLE_MAP: TITLE_MAP,
+    SPECIALTY_MAP: SPECIALTY_MAP,
   },
   
   onLoad(options) {
@@ -122,25 +171,22 @@ Page({
       currentCategory: categoryId,
       searchKeyword: '', // 切换分类时清空搜索词
       isSearching: false, // 退出搜索模式
-      // 只有新闻动态分类显示轮播图
-      showSwiper: categoryId === 1
+      showSwiper: categoryId === 1, // 只有新闻动态分类显示轮播图
+      page: 1, // 重置页码
+      doctorPage: 1 // 重置医生列表页码
     });
     
-    // 如果是"签约专家"或"授权专家"分类，显示提示消息
     if (categoryId === 7 || categoryId === 11) {
-      wx.showToast({
-        title: '专家数据整理中',
-        icon: 'none',
-        duration: 2000
-      });
-    }
-    
-    this.filterArticles();
-    
-    // 如果过滤后的文章太少，加载更多
-    if (this.data.filteredArticles.length < 5 && this.data.hasMore && 
-        categoryId !== 7 && categoryId !== 11) { // 排除签约专家和授权专家
-      this.loadMoreForCategory();
+      // 加载医生列表
+      this.loadDoctors(true);
+    } else {
+      this.filterArticles();
+      
+      // 如果过滤后的文章太少，加载更多
+      if (this.data.filteredArticles.length < 5 && this.data.hasMore && 
+          categoryId !== 7 && categoryId !== 11) {
+        this.loadMoreForCategory();
+      }
     }
   },
   
@@ -275,7 +321,11 @@ Page({
   
   // 触底加载更多
   onReachBottom() {
-    if (!this.data.isSearching) {
+    if (this.data.currentCategory === 7) {
+      // 加载更多医生
+      this.loadDoctors();
+    } else if (!this.data.isSearching) {
+      // 加载更多文章
       this.loadArticles();
     }
   },
@@ -409,5 +459,281 @@ Page({
       scrollTop: 0,
       duration: 300
     });
-  }
+  },
+  
+  // 加载医生列表
+  async loadDoctors(isRefresh = false) {
+    if (this.data.doctorLoading || (!isRefresh && !this.data.doctorHasMore)) return;
+
+    this.setData({ doctorLoading: true });
+    
+    try {
+      const res = await new Promise((resolve, reject) => {
+        wx.request({
+          url: `${HOST}/api/member/list`,
+          method: 'GET',
+          data: {
+            page: this.data.doctorPage,
+            limit: 10
+          },
+          success: (res) => {
+            if (res.data && res.data.code === 1) {
+              resolve(res.data);
+            } else {
+              reject(res.data || { msg: '获取医生列表失败' });
+            }
+          },
+          fail: (err) => {
+            reject(err || { msg: '网络请求失败' });
+          }
+        });
+      });
+
+      const newDoctors = res.data || [];
+      
+      // 处理医生数据
+      newDoctors.forEach(doctor => {
+        // 处理头像路径
+        if (doctor.head_img && doctor.head_img.startsWith('/')) {
+          doctor.head_img = `${HOST}${doctor.head_img}`;
+        }
+
+        // 处理职称显示
+        doctor.title_text = this.data.TITLE_MAP[doctor.positional_title] || '';
+
+        // 处理专长显示
+        if (doctor.specialties) {
+          const specialtiesArr = doctor.specialties.split(',');
+          doctor.specialties_text = specialtiesArr
+            .map(id => this.data.SPECIALTY_MAP[id])
+            .filter(text => text)
+            .join('、');
+        }
+
+        // 处理认证显示
+        doctor.auth_text = this.data.AUTH_MAP[doctor.honor_auth] || '';
+        
+        // 处理城市名称显示
+        if (doctor.city_name) {
+          // 提取省份名称
+          let provinceName = '';
+          if (doctor.city_name.includes('/')) {
+            provinceName = doctor.city_name.split('/')[0];
+            // 提取省份主要名称（移除"省"、"市"等后缀）
+            if (provinceName.includes('省')) {
+              provinceName = provinceName.split('省')[0];
+            } else if (provinceName.includes('市') && !provinceName.startsWith('北京') && !provinceName.startsWith('上海') && !provinceName.startsWith('天津') && !provinceName.startsWith('重庆')) {
+              provinceName = provinceName.split('市')[0];
+            }
+          } else {
+            provinceName = doctor.city_name;
+          }
+          
+          // 保存原始值，并设置简化显示
+          doctor.original_city_name = doctor.city_name;
+          doctor.city_name = provinceName;
+        }
+        
+        // 确保有 first_py 字段
+        if (!doctor.first_py && doctor.name) {
+          // 如果没有 first_py 字段但有 name，取 name 的首字母
+          doctor.first_py = doctor.name.charAt(0).toUpperCase();
+        }
+        
+        // 确保各个筛选字段都有值
+        if (!doctor.first_py) doctor.first_py = '';
+        if (!doctor.specialties) doctor.specialties = '';
+        if (!doctor.honor_auth) doctor.honor_auth = '';
+        if (!doctor.positional_title) doctor.positional_title = '';
+      });
+
+      // 输出第一位医生的数据，用于调试
+      if (newDoctors.length > 0) {
+        console.log('第一位医生数据样例:', {
+          name: newDoctors[0].name,
+          first_py: newDoctors[0].first_py,
+          honor_auth: newDoctors[0].honor_auth,
+          positional_title: newDoctors[0].positional_title,
+          specialties: newDoctors[0].specialties,
+          city_name: newDoctors[0].city_name,
+          original_city_name: newDoctors[0].original_city_name
+        });
+      }
+
+      const allDoctors = isRefresh ? newDoctors : [...this.data.doctors, ...newDoctors];
+
+      // 在成功加载数据后，更新地点列表（使用处理后的省份名称）
+      if (isRefresh) {
+        // 使用处理后的城市名称构建地点列表
+        let locations = [...new Set(allDoctors.map(doctor => doctor.city_name))].filter(Boolean);
+        
+        // 添加常见整形地点
+        let commonLocations = ['北京', '上海', '广东', '浙江', '江苏', '四川', '湖北', '辽宁', '山东'];
+        // 合并已有地点和常见地点，去重
+        locations = [...new Set([...locations, ...commonLocations])].filter(Boolean).sort();
+        
+        this.setData({ locations });
+      }
+
+      this.setData({
+        doctors: allDoctors,
+        doctorPage: this.data.doctorPage + 1,
+        doctorLoading: false,
+        doctorHasMore: newDoctors.length === 10,
+        noData: isRefresh && allDoctors.length === 0
+      });
+
+      // 每次加载都重新应用筛选条件
+      this.filterDoctors();
+
+    } catch (error) {
+      console.error('获取医生列表失败', error);
+      this.setData({ 
+        doctorLoading: false,
+        noData: isRefresh && this.data.doctors.length === 0
+      });
+      wx.showToast({
+        title: error.msg || '获取医生列表失败',
+        icon: 'none'
+      });
+    }
+  },
+
+  // 跳转到专家详情
+  goToDoctorDetail(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/doctor/detail?id=${id}`
+    });
+  },
+
+  // 切换筛选面板
+  toggleFilter(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({
+      activeFilter: this.data.activeFilter === type ? '' : type
+    });
+  },
+
+  // 选择认证
+  selectAuth(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedAuth: value,
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
+
+  // 选择职称
+  selectTitle(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedTitle: value,
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
+
+  // 选择地点
+  selectLocation(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedLocation: value,
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
+
+  // 选择专长
+  selectSpecialty(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedSpecialty: value,
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
+
+  // 选择姓氏首字母
+  selectLetter(e) {
+    const value = e.currentTarget.dataset.value;
+    this.setData({
+      selectedLetter: value,
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
+
+  // 筛选医生列表
+  filterDoctors() {
+    let filtered = [...this.data.doctors];
+    const {
+      selectedAuth,
+      selectedTitle,
+      selectedLocation,
+      selectedSpecialty,
+      selectedLetter
+    } = this.data;
+
+    // 按认证筛选
+    if (selectedAuth) {
+      filtered = filtered.filter(doctor => String(doctor.honor_auth) === String(selectedAuth));
+    }
+
+    // 按职称筛选
+    if (selectedTitle) {
+      filtered = filtered.filter(doctor => String(doctor.positional_title) === String(selectedTitle));
+    }
+
+    // 按地点筛选
+    if (selectedLocation) {
+      filtered = filtered.filter(doctor => doctor.city_name === selectedLocation);
+    }
+
+    // 按专长筛选
+    if (selectedSpecialty) {
+      filtered = filtered.filter(doctor => {
+        if (!doctor.specialties) return false;
+        const specialtiesArr = doctor.specialties.split(',').map(String);
+        return specialtiesArr.includes(String(selectedSpecialty));
+      });
+    }
+
+    // 按姓氏首字母筛选 - 使用 first_py 字段
+    if (selectedLetter) {
+      filtered = filtered.filter(doctor => {
+        if (!doctor.first_py) return false;
+        const firstPy = doctor.first_py.toUpperCase();
+        return firstPy === selectedLetter;
+      });
+    }
+
+    console.log('筛选条件:', {
+      selectedAuth,
+      selectedTitle,
+      selectedLocation,
+      selectedSpecialty,
+      selectedLetter
+    });
+    console.log('筛选后的医生数量:', filtered.length);
+
+    this.setData({
+      filteredDoctors: filtered,
+      noData: filtered.length === 0
+    });
+  },
+
+  // 添加清除筛选条件方法
+  clearFilter() {
+    this.setData({
+      selectedAuth: '',
+      selectedTitle: '',
+      selectedLocation: '',
+      selectedSpecialty: '',
+      selectedLetter: '',
+      activeFilter: ''
+    });
+    this.filterDoctors();
+  },
 });

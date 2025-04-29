@@ -1,0 +1,126 @@
+<!--专家详情-->
+<view class="page-container">
+  <!-- 加载状态 -->
+  <view class="loading-container" wx:if="{{loading}}">
+    <view class="loading">加载中...</view>
+  </view>
+
+  <!-- 错误提示 -->
+  <view class="error-container" wx:elif="{{error}}">
+    <view class="error-message">{{errorMsg}}</view>
+    <view class="retry-button" bindtap="loadDoctorDetail">重试</view>
+  </view>
+
+  <!-- 专家详情内容 -->
+  <view class="doctor-detail" wx:elif="{{doctor}}">
+    <!-- 头部信息 -->
+    <view class="doctor-header-card">
+      <view class="doctor-base-info">
+        <view class="doctor-avatar">
+          <image src="{{doctor.head_img}}" mode="aspectFill"></image>
+        </view>
+        <view class="doctor-info-main">
+          <view class="doctor-name">{{doctor.name}}</view>
+          <view class="doctor-title">{{doctor.title_text}}</view>
+          <view class="doctor-hospital">{{doctor.hospital_name}}</view>
+          <view class="doctor-auth" wx:if="{{doctor.auth_text}}">{{doctor.auth_text}}</view>
+        </view>
+      </view>
+      <view class="doctor-stats">
+        <view class="stat-item">
+          <text>{{doctor.city_name}}</text>
+        </view>
+        <view class="stat-item center">
+          <text class="highlight">从业{{doctor.experience_years}}年</text>
+        </view>
+        <view class="stat-item">
+          <text class="highlight">手术：{{doctor.surgery_count}}例</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 内容导航 -->
+    <view class="tab-container">
+      <view class="tab active">简介</view>
+    </view>
+
+    <!-- 详细内容 -->
+    <view class="doctor-content">
+      <!-- 相关视频 -->
+      <view class="section" wx:if="{{doctor.videos && doctor.videos.length > 0}}">
+        <view class="section-title">相关视频</view>
+        <view class="section-content">
+          <!-- 视频选择栏 -->
+          <view class="video-tabs">
+            <view 
+              class="video-tab {{currentVideoIndex === index ? 'active' : ''}}" 
+              wx:for="{{doctor.videos}}" 
+              wx:key="index"
+              bindtap="switchVideo"
+              data-index="{{index}}"
+            >
+              视频 {{index + 1}}
+            </view>
+          </view>
+          
+          <!-- 视频播放器 -->
+          <view class="video-player">
+            <video 
+              id="doctorVideo" 
+              src="{{doctor.videos[currentVideoIndex].url}}" 
+              controls="{{true}}"
+              show-center-play-btn="{{true}}"
+              object-fit="contain"
+              custom-cache="{{false}}"
+              show-fullscreen-btn="{{true}}"
+              play-btn-position="center"
+              enable-play-gesture="{{true}}"
+              referrer-policy="no-referrer"
+              enable-auto-rotation="{{true}}"
+            ></video>
+          </view>
+        </view>
+      </view>
+
+      <!-- 擅长领域 -->
+      <view class="section" wx:if="{{doctor.specialties_text}}">
+        <view class="section-title">擅长领域</view>
+        <view class="section-content specialties-tags">
+          <view class="specialty-tag" wx:for="{{doctor.specialties_arr}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 个人简介 -->
+      <view class="section" wx:if="{{doctor.personal_introduction}}">
+        <view class="section-title">个人简介</view>
+        <view class="section-content">
+          <rich-text nodes="{{doctor.personal_introduction}}" bindtap="handleRichTextTap"></rich-text>
+        </view>
+      </view>
+
+      <!-- 社会任职 -->
+      <view class="section" wx:if="{{doctor.social_position}}">
+        <view class="section-title">社会任职</view>
+        <view class="section-content">
+          <view class="position-item" wx:for="{{doctor.social_position_arr}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 获奖荣誉 -->
+      <view class="section" wx:if="{{doctor.awards_honors}}">
+        <view class="section-title">获奖荣誉</view>
+        <view class="section-content">
+          <view class="award-item" wx:for="{{doctor.awards_honors_arr}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+
+      <!-- 科研成果 -->
+      <view class="section" wx:if="{{doctor.research_achievements}}">
+        <view class="section-title">科研成果</view>
+        <view class="section-content research-content">
+          <rich-text nodes="{{doctor.research_achievements}}"></rich-text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view> 

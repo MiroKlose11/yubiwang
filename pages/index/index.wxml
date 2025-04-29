@@ -30,10 +30,183 @@
     </swiper>
   </view>
 
+  <!-- 医生列表 -->
+  <view class="doctor-list" wx:if="{{currentCategory === 7}}">
+    <view class="filter-section">
+      <view class="filter-group">
+        <view class="filter-item {{activeFilter === 'auth' ? 'active' : ''}}" bindtap="toggleFilter" data-type="auth">
+          <text>认证</text>
+          <text class="filter-icon">{{activeFilter === 'auth' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'title' ? 'active' : ''}}" bindtap="toggleFilter" data-type="title">
+          <text>职称</text>
+          <text class="filter-icon">{{activeFilter === 'title' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'location' ? 'active' : ''}}" bindtap="toggleFilter" data-type="location">
+          <text>执业地点</text>
+          <text class="filter-icon">{{activeFilter === 'location' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'specialty' ? 'active' : ''}}" bindtap="toggleFilter" data-type="specialty">
+          <text>擅长领域</text>
+          <text class="filter-icon">{{activeFilter === 'specialty' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'name' ? 'active' : ''}}" bindtap="toggleFilter" data-type="name">
+          <text>姓名</text>
+          <text class="filter-icon">{{activeFilter === 'name' ? '↑' : '↓'}}</text>
+        </view>
+      </view>
+      
+      <!-- 筛选下拉面板 -->
+      <view class="filter-dropdown" wx:if="{{activeFilter}}">
+        <!-- 认证筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'auth'}}">
+          <view class="filter-option {{selectedAuth === '' ? 'active' : ''}}" bindtap="selectAuth" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedAuth === key ? 'active' : ''}}" 
+                wx:for="{{AUTH_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectAuth"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 职称筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'title'}}">
+          <view class="filter-option {{selectedTitle === '' ? 'active' : ''}}" bindtap="selectTitle" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedTitle === key ? 'active' : ''}}" 
+                wx:for="{{TITLE_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectTitle"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 执业地点筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'location'}}">
+          <view class="filter-option {{selectedLocation === '' ? 'active' : ''}}" bindtap="selectLocation" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedLocation === item ? 'active' : ''}}" 
+                wx:for="{{locations}}" 
+                wx:key="*this"
+                bindtap="selectLocation"
+                data-value="{{item}}">
+            {{item}}
+          </view>
+        </view>
+        
+        <!-- 擅长领域筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'specialty'}}">
+          <view class="filter-option {{selectedSpecialty === '' ? 'active' : ''}}" bindtap="selectSpecialty" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedSpecialty === key ? 'active' : ''}}" 
+                wx:for="{{SPECIALTY_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectSpecialty"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 姓名筛选 -->
+        <view class="filter-options letter-grid" wx:if="{{activeFilter === 'name'}}">
+          <view class="filter-option {{selectedLetter === '' ? 'active' : ''}}" bindtap="selectLetter" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedLetter === item ? 'active' : ''}}" 
+                wx:for="{{letters}}" 
+                wx:key="*this"
+                bindtap="selectLetter"
+                data-value="{{item}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="doctor-grid">
+      <block wx:if="{{(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter) && filteredDoctors.length === 0}}">
+        <view class="no-filter-result">
+          <text>没有符合条件的专家</text>
+          <view class="clear-filter" bindtap="clearFilter">清除筛选条件</view>
+        </view>
+      </block>
+      <block wx:else>
+        <block wx:if="{{filteredDoctors.length > 0}}">
+          <view class="doctor-item" wx:for="{{filteredDoctors}}" wx:key="id" bindtap="goToDoctorDetail" data-id="{{item.id}}">
+            <view class="doctor-avatar">
+              <image src="{{item.head_img}}" mode="aspectFill"></image>
+              <view class="doctor-auth" wx:if="{{item.auth_text}}">{{item.auth_text}}</view>
+            </view>
+            <view class="doctor-info">
+              <view class="doctor-header">
+                <view class="doctor-name">{{item.name}}</view>
+                <view class="view-detail" catchtap="goToDoctorDetail" data-id="{{item.id}}">查看详情</view>
+              </view>
+              <view class="doctor-title">{{item.title_text}}</view>
+              <view class="doctor-hospital">{{item.hospital_name}}</view>
+              <view class="doctor-location">
+                <text>{{item.city_name}}</text>
+                <text class="doctor-experience">从业{{item.experience_years}}年</text>
+                <text class="doctor-surgery">手术：{{item.surgery_count}}例</text>
+              </view>
+              <view class="doctor-specialties" wx:if="{{item.specialties_text}}">
+                <text>擅长：{{item.specialties_text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="doctor-item" wx:for="{{doctors}}" wx:key="id" bindtap="goToDoctorDetail" data-id="{{item.id}}">
+            <view class="doctor-avatar">
+              <image src="{{item.head_img}}" mode="aspectFill"></image>
+              <view class="doctor-auth" wx:if="{{item.auth_text}}">{{item.auth_text}}</view>
+            </view>
+            <view class="doctor-info">
+              <view class="doctor-header">
+                <view class="doctor-name">{{item.name}}</view>
+                <view class="view-detail" catchtap="goToDoctorDetail" data-id="{{item.id}}">查看详情</view>
+              </view>
+              <view class="doctor-title">{{item.title_text}}</view>
+              <view class="doctor-hospital">{{item.hospital_name}}</view>
+              <view class="doctor-location">
+                <text>{{item.city_name}}</text>
+                <text class="doctor-experience">从业{{item.experience_years}}年</text>
+                <text class="doctor-surgery">手术：{{item.surgery_count}}例</text>
+              </view>
+              <view class="doctor-specialties" wx:if="{{item.specialties_text}}">
+                <text>擅长：{{item.specialties_text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </block>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-status">
+      <view wx:if="{{doctorLoading}}" class="loading">加载中...</view>
+      <view wx:elif="{{!doctorHasMore && doctors.length > 0 && !(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter)}}" class="no-more">没有更多了</view>
+      <view wx:elif="{{noData && !(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter)}}" class="no-data">暂无专家数据</view>
+    </view>
+  </view>
+
   <!-- 文章列表 -->
-  <view class="article-list">
+  <view class="article-list" wx:elif="{{currentCategory !== 11}}">
     <view class="no-data" wx:if="{{noData}}">
-      <text wx:if="{{currentCategory === 7 || currentCategory === 11}}">专家数据正在整理中，敬请期待...</text>
+      <text wx:if="{{currentCategory === 12}}">学术公告数据正在整理中，敬请期待...</text>
       <text wx:else>暂无文章</text>
     </view>
     <block wx:else>
@@ -60,6 +233,179 @@
     <view class="loading-status">
       <view wx:if="{{loading}}" class="loading">加载中...</view>
       <view wx:elif="{{!hasMore && filteredArticles.length > 0}}" class="no-more">没有更多了</view>
+    </view>
+  </view>
+
+  <!-- 授权专家列表 -->
+  <view class="doctor-list" wx:else>
+    <view class="filter-section">
+      <view class="filter-group">
+        <view class="filter-item {{activeFilter === 'auth' ? 'active' : ''}}" bindtap="toggleFilter" data-type="auth">
+          <text>认证</text>
+          <text class="filter-icon">{{activeFilter === 'auth' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'title' ? 'active' : ''}}" bindtap="toggleFilter" data-type="title">
+          <text>职称</text>
+          <text class="filter-icon">{{activeFilter === 'title' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'location' ? 'active' : ''}}" bindtap="toggleFilter" data-type="location">
+          <text>执业地点</text>
+          <text class="filter-icon">{{activeFilter === 'location' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'specialty' ? 'active' : ''}}" bindtap="toggleFilter" data-type="specialty">
+          <text>擅长领域</text>
+          <text class="filter-icon">{{activeFilter === 'specialty' ? '↑' : '↓'}}</text>
+        </view>
+        <view class="filter-item {{activeFilter === 'name' ? 'active' : ''}}" bindtap="toggleFilter" data-type="name">
+          <text>姓名</text>
+          <text class="filter-icon">{{activeFilter === 'name' ? '↑' : '↓'}}</text>
+        </view>
+      </view>
+      
+      <!-- 筛选下拉面板 -->
+      <view class="filter-dropdown" wx:if="{{activeFilter}}">
+        <!-- 认证筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'auth'}}">
+          <view class="filter-option {{selectedAuth === '' ? 'active' : ''}}" bindtap="selectAuth" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedAuth === key ? 'active' : ''}}" 
+                wx:for="{{AUTH_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectAuth"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 职称筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'title'}}">
+          <view class="filter-option {{selectedTitle === '' ? 'active' : ''}}" bindtap="selectTitle" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedTitle === key ? 'active' : ''}}" 
+                wx:for="{{TITLE_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectTitle"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 执业地点筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'location'}}">
+          <view class="filter-option {{selectedLocation === '' ? 'active' : ''}}" bindtap="selectLocation" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedLocation === item ? 'active' : ''}}" 
+                wx:for="{{locations}}" 
+                wx:key="*this"
+                bindtap="selectLocation"
+                data-value="{{item}}">
+            {{item}}
+          </view>
+        </view>
+        
+        <!-- 擅长领域筛选 -->
+        <view class="filter-options" wx:if="{{activeFilter === 'specialty'}}">
+          <view class="filter-option {{selectedSpecialty === '' ? 'active' : ''}}" bindtap="selectSpecialty" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedSpecialty === key ? 'active' : ''}}" 
+                wx:for="{{SPECIALTY_MAP}}" 
+                wx:key="*this"
+                wx:for-item="value"
+                wx:for-index="key"
+                bindtap="selectSpecialty"
+                data-value="{{key}}">
+            {{value}}
+          </view>
+        </view>
+        
+        <!-- 姓名筛选 -->
+        <view class="filter-options letter-grid" wx:if="{{activeFilter === 'name'}}">
+          <view class="filter-option {{selectedLetter === '' ? 'active' : ''}}" bindtap="selectLetter" data-value="">
+            全部
+          </view>
+          <view class="filter-option {{selectedLetter === item ? 'active' : ''}}" 
+                wx:for="{{letters}}" 
+                wx:key="*this"
+                bindtap="selectLetter"
+                data-value="{{item}}">
+            {{item}}
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="doctor-grid">
+      <block wx:if="{{(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter) && filteredDoctors.length === 0}}">
+        <view class="no-filter-result">
+          <text>没有符合条件的专家</text>
+          <view class="clear-filter" bindtap="clearFilter">清除筛选条件</view>
+        </view>
+      </block>
+      <block wx:else>
+        <block wx:if="{{filteredDoctors.length > 0}}">
+          <view class="doctor-item" wx:for="{{filteredDoctors}}" wx:key="id" bindtap="goToDoctorDetail" data-id="{{item.id}}">
+            <view class="doctor-avatar">
+              <image src="{{item.head_img}}" mode="aspectFill"></image>
+              <view class="doctor-auth" wx:if="{{item.auth_text}}">{{item.auth_text}}</view>
+            </view>
+            <view class="doctor-info">
+              <view class="doctor-header">
+                <view class="doctor-name">{{item.name}}</view>
+                <view class="view-detail" catchtap="goToDoctorDetail" data-id="{{item.id}}">查看详情</view>
+              </view>
+              <view class="doctor-title">{{item.title_text}}</view>
+              <view class="doctor-hospital">{{item.hospital_name}}</view>
+              <view class="doctor-location">
+                <text>{{item.city_name}}</text>
+                <text class="doctor-experience">从业{{item.experience_years}}年</text>
+                <text class="doctor-surgery">手术：{{item.surgery_count}}例</text>
+              </view>
+              <view class="doctor-specialties" wx:if="{{item.specialties_text}}">
+                <text>擅长：{{item.specialties_text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="doctor-item" wx:for="{{doctors}}" wx:key="id" bindtap="goToDoctorDetail" data-id="{{item.id}}">
+            <view class="doctor-avatar">
+              <image src="{{item.head_img}}" mode="aspectFill"></image>
+              <view class="doctor-auth" wx:if="{{item.auth_text}}">{{item.auth_text}}</view>
+            </view>
+            <view class="doctor-info">
+              <view class="doctor-header">
+                <view class="doctor-name">{{item.name}}</view>
+                <view class="view-detail" catchtap="goToDoctorDetail" data-id="{{item.id}}">查看详情</view>
+              </view>
+              <view class="doctor-title">{{item.title_text}}</view>
+              <view class="doctor-hospital">{{item.hospital_name}}</view>
+              <view class="doctor-location">
+                <text>{{item.city_name}}</text>
+                <text class="doctor-experience">从业{{item.experience_years}}年</text>
+                <text class="doctor-surgery">手术：{{item.surgery_count}}例</text>
+              </view>
+              <view class="doctor-specialties" wx:if="{{item.specialties_text}}">
+                <text>擅长：{{item.specialties_text}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </block>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-status">
+      <view wx:if="{{doctorLoading}}" class="loading">加载中...</view>
+      <view wx:elif="{{!doctorHasMore && doctors.length > 0 && !(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter)}}" class="no-more">没有更多了</view>
+      <view wx:elif="{{noData && !(selectedAuth || selectedTitle || selectedLocation || selectedSpecialty || selectedLetter)}}" class="no-data">暂无专家数据</view>
     </view>
   </view>
   

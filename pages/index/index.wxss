@@ -254,29 +254,22 @@ page {
   object-fit: cover;
 }
 
-/* 加载状态 */
-.loading-status {
+  /* 无筛选结果提示 */
+.no-filter-result {
   text-align: center;
-  padding: 20rpx 0;
+  padding: 40rpx 0;
   font-size: 28rpx;
-  color: #999;
-}
-
-.no-data {
-  text-align: center;
-  padding: 100rpx 0;
   color: #666;
-  font-size: 30rpx;
-  line-height: 1.5;
 }
 
-.no-data text {
-  display: block;
-  background-color: #f8f8f8;
-  margin: 0 auto;
-  padding: 30rpx;
-  border-radius: 10rpx;
-  max-width: 80%;
+.clear-filter {
+  margin-top: 20rpx;
+  display: inline-block;
+  padding: 10rpx 30rpx;
+  background: #3A8FB7;
+  color: #fff;
+  border-radius: 30rpx;
+  font-size: 26rpx;
 }
 
 /* 返回顶部按钮样式 */
@@ -301,4 +294,239 @@ page {
 .back-to-top image {
   width: 50rpx;
   height: 50rpx;
+}
+
+/* 医生列表样式 */
+.doctor-list {
+  width: 100%;
+  padding: 0;
+  background-color: #f9f9f9;
+}
+
+.filter-section {
+  background-color: #fff;
+  padding: 0;
+  border-bottom: 1rpx solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.filter-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20rpx;
+  height: 80rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #333;
+  padding: 0 10rpx;
+  position: relative;
+}
+
+.filter-item.active {
+  color: #3A8FB7;
+  font-weight: bold;
+}
+
+.filter-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background-color: #3A8FB7;
+  border-radius: 2rpx;
+}
+
+.filter-icon {
+  margin-left: 6rpx;
+  color: #999;
+  font-size: 24rpx;
+}
+
+.filter-item.active .filter-icon {
+  color: #3A8FB7;
+}
+
+/* 下拉面板样式 */
+.filter-dropdown {
+  background: #fff;
+  max-height: 400rpx;
+  overflow-y: auto;
+  box-shadow: 0 4rpx 10rpx rgba(0,0,0,0.1);
+  z-index: 10;
+  border-bottom: 1rpx solid #eee;
+}
+
+.filter-options {
+  padding: 20rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.filter-option {
+  padding: 10rpx 20rpx;
+  font-size: 26rpx;
+  color: #333;
+  background: #f5f5f5;
+  border-radius: 25rpx;
+  min-width: 100rpx;
+  text-align: center;
+  margin-bottom: 10rpx;
+}
+
+.filter-option.active {
+  background: #3A8FB7;
+  color: #fff;
+}
+
+/* 字母网格特殊样式 */
+.letter-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10rpx;
+  padding: 20rpx;
+}
+
+.letter-grid .filter-option {
+  min-width: auto;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10rpx;
+  margin: 0 auto;
+}
+
+.doctor-grid {
+  padding: 20rpx;
+}
+
+.doctor-item {
+  display: flex;
+  padding: 20rpx;
+  background: #fff;
+  margin-bottom: 20rpx;
+  border-radius: 12rpx;
+}
+
+.doctor-avatar {
+  position: relative;
+  width: 160rpx;
+  height: 160rpx;
+  margin-right: 20rpx;
+  display: flex;
+  align-items: center;
+}
+
+.doctor-avatar image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.doctor-auth {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #4CAF50;
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 8rpx;
+  border-radius: 8rpx;
+}
+
+.doctor-info {
+  flex: 1;
+}
+
+.doctor-name {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+}
+
+.doctor-title {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+}
+
+.doctor-hospital {
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.doctor-location {
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 8rpx;
+  display: flex;
+  gap: 20rpx;
+}
+
+.doctor-experience, .doctor-surgery {
+  color: #4CAF50;
+}
+
+.doctor-specialties {
+  font-size: 24rpx;
+  color: #666;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* 加载状态 */
+.loading-status {
+  text-align: center;
+  padding: 10rpx 0 30rpx;
+  font-size: 28rpx;
+  color: #999;
+}
+
+.no-data {
+  text-align: center;
+  padding: 100rpx 0;
+  color: #666;
+  font-size: 30rpx;
+  line-height: 1.5;
+}
+
+.no-data text {
+  display: block;
+  background-color: #f8f8f8;
+  margin: 0 auto;
+  padding: 30rpx;
+  border-radius: 10rpx;
+  max-width: 80%;
+}
+
+.doctor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.view-detail {
+  font-size: 24rpx;
+  color: #ffffff;
+  background-color: #3A8FB7;
+  padding: 6rpx 12rpx;
+  border-radius: 20rpx;
 }
