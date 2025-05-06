@@ -113,6 +113,7 @@
       <view class="article-item" wx:for="{{filteredArticles}}" wx:key="uniqueKey" bindtap="goToArticleDetail" data-id="{{item.id}}">
         <view class="article-image" wx:if="{{item.image}}">
           <image src="{{item.image}}" mode="aspectFill"></image>
+          <view class="top-tag" wx:if="{{item.isTop}}">置顶</view>
         </view>
         <view class="article-info">
           <view class="article-title">{{item.title}}</view>

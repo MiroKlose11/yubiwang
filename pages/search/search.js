@@ -125,17 +125,14 @@ Page({
     this.setData({ loading: true, loadingMore: false });
 
     try {
-      const res = await wx.cloud.callFunction({
-        name: 'search',
-        data: {
-          keyword,
-          page: this.data.page,
-          limit: this.data.limit,
-          type: 'article'
-        }
+      // 使用api.js中的searchArticles函数
+      const res = await searchArticles({
+        search: keyword,
+        page: this.data.page,
+        pagesize: this.data.limit
       });
 
-      let results = res.result?.data || [];
+      let results = res.data || [];
       
       // 使用processResults处理结果
       results = this.processResults(results);

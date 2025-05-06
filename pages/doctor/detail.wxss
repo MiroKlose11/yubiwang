@@ -37,7 +37,7 @@ page {
 
 .retry-button {
   padding: 16rpx 30rpx;
-  background-color: #3A8FB7;
+  background: linear-gradient(to right, #2b5876, #4e4376);
   color: #fff;
   border-radius: 30rpx;
   font-size: 28rpx;
@@ -45,7 +45,7 @@ page {
 
 /* 头部信息卡片 */
 .doctor-header-card {
-  background: #3A8FB7;
+  background: linear-gradient(to bottom, #2b5876, #4e4376);
   color: #fff;
   padding: 40rpx 30rpx;
   border-bottom-left-radius: 30rpx;
@@ -118,8 +118,8 @@ page {
   display: inline-block;
   font-size: 26rpx;
   padding: 6rpx 20rpx;
-  background-color: #f8d151;
-  color: #333;
+  background: linear-gradient(to right, #2b5876, #4e4376);
+  color: #fff;
   border-radius: 24rpx;
   margin-top: 16rpx;
   font-weight: 500;
@@ -145,7 +145,7 @@ page {
 }
 
 .highlight {
-  color: #09c86f;
+  color: #fff;
   font-weight: 500;
   text-shadow: 0 1rpx 2rpx rgba(0,0,0,0.1);
 }
@@ -178,7 +178,7 @@ page {
   left: 0;
   width: 100%;
   height: 4rpx;
-  background-color: #3A8FB7;
+  background: linear-gradient(to right, #2b5876, #4e4376);
   border-radius: 2rpx;
 }
 
@@ -207,7 +207,7 @@ page {
   top: 8rpx;
   width: 6rpx;
   height: 30rpx;
-  background-color: #3A8FB7;
+  background: linear-gradient(to bottom, #2b5876, #4e4376);
   border-radius: 3rpx;
 }
 
@@ -226,7 +226,7 @@ page {
 
 .specialty-tag {
   background-color: #f2f7fa;
-  color: #3A8FB7;
+  color: #2b5876;
   padding: 10rpx 20rpx;
   border-radius: 30rpx;
   font-size: 26rpx;
@@ -251,7 +251,7 @@ page {
   position: absolute;
   left: 0;
   top: 0;
-  color: #3A8FB7;
+  color: #2b5876;
 }
 
 /* 富文本样式 */
@@ -286,10 +286,10 @@ rich-text {
 }
 
 .video-tab.active {
-  background: linear-gradient(to right, #3A8FB7, #5aaac8);
+  background: linear-gradient(to right, #2b5876, #4e4376);
   color: #fff;
   font-weight: 500;
-  box-shadow: 0 4rpx 8rpx rgba(58,143,183,0.3);
+  box-shadow: 0 4rpx 8rpx rgba(43,88,118,0.3);
 }
 
 /* 视频播放器 */

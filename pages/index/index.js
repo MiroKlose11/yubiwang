@@ -295,6 +295,16 @@ Page({
       return item;
     });
 
+    // 根据weigh字段进行排序，weigh值越大排序越靠前
+    filteredArticles.sort((a, b) => {
+      // 如果没有weigh字段，默认为0
+      const weighA = a.weigh || 0;
+      const weighB = b.weigh || 0;
+      
+      // 降序排列，权重高的排在前面
+      return weighB - weighA;
+    });
+
     this.setData({
       filteredArticles,
       noData: filteredArticles.length === 0
@@ -312,8 +322,13 @@ Page({
     this.setData({ loading: true });
 
     try {
-      const res = await getArticleList({ page });
+      const res = await getArticleList({ 
+        page,
+        // 在刷新或第一页时获取所有置顶文章
+        fetchAllTop: isRefresh || page === 1
+      });
       const newArticles = res.data || [];
+      const isMergedResult = res.isMergedResult || false;
 
       // 处理文章数据
       newArticles.forEach((item, index) => {
@@ -338,6 +353,9 @@ Page({
           item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
         }
 
+        // 添加置顶标记，如果weigh大于0，则标记为置顶
+        item.isTop = item.weigh && item.weigh > 0;
+
         // 生成唯一key，避免wx:key重复
         item.uniqueKey = (item.id || '') + '_' + (isRefresh ? index : this.data.articles.length + index);
       });
@@ -347,8 +365,10 @@ Page({
 
       this.setData({
         articles: allArticles,
-        page: page + 1,
+        // 如果是合并结果且不是刷新，则页码不递增，因为这是一个特殊的请求
+        page: (isMergedResult && !isRefresh) ? page : page + 1,
         loading: false,
+        // 如果返回的文章数量少于请求的数量，表示没有更多文章了
         hasMore: newArticles.length === 10
       });
 

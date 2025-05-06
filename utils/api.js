@@ -8,32 +8,132 @@
  * @param {Number} params.pageSize 每页条数，默认10 
  * @param {Number} params.channel_id 分类ID，可选
  * @param {String} params.keyword 搜索关键词，可选
+ * @param {String} params.order 排序方式，可选，默认为"weigh desc,publishtime desc"
+ * @param {Boolean} params.fetchAllTop 是否获取所有置顶文章，默认true
  * @returns {Promise} 返回Promise对象
  */
 function getArticleList(params = {}) {
-  const { page = 1, pageSize = 10, channel_id, keyword } = typeof params === 'object' ? params : { page: params };
+  const { 
+    page = 1, 
+    pageSize = 10, 
+    channel_id, 
+    keyword,
+    order = "weigh desc,publishtime desc",
+    fetchAllTop = true
+  } = typeof params === 'object' ? params : { page: params };
   
-  return new Promise((resolve, reject) => {
-    wx.request({
-      url: 'https://www.yubi.wang/api/article/list',
-      method: 'GET',
-      data: {
-        page,
-        limit: pageSize,
+  return new Promise(async (resolve, reject) => {
+    try {
+      // 基础查询参数
+      const baseParams = {
         ...(channel_id ? { channel_id } : {}),
         ...(keyword ? { keyword } : {})
-      },
-      success: (res) => {
-        if (res.data && res.data.code === 1) {
-          resolve(res.data);
+      };
+      
+      // 如果需要获取所有置顶文章且是第一页
+      if (fetchAllTop && page === 1) {
+        // 1. 先获取所有置顶文章（weigh > 0）
+        const topResult = await new Promise((innerResolve, innerReject) => {
+          wx.request({
+            url: 'https://www.yubi.wang/api/article/list',
+            method: 'GET',
+            data: {
+              ...baseParams,
+              weigh_gt: 0,  // 查询weigh大于0的文章
+              page: 1,
+              limit: 100,   // 设置较大的限制以获取所有置顶文章
+              order: "weigh desc,publishtime desc"
+            },
+            success: (res) => {
+              if (res.data && res.data.code === 1) {
+                innerResolve(res.data);
+              } else {
+                innerReject(res.data || { msg: '获取置顶文章失败' });
+              }
+            },
+            fail: (err) => {
+              innerReject(err || { msg: '网络请求失败' });
+            }
+          });
+        });
+        
+        // 2. 获取普通文章（页面上剩余的位置）
+        const topArticlesCount = topResult.data ? topResult.data.length : 0;
+        const normalLimit = Math.max(0, pageSize - topArticlesCount);
+        
+        if (normalLimit > 0) {
+          // 再获取普通文章
+          const normalResult = await new Promise((innerResolve, innerReject) => {
+            wx.request({
+              url: 'https://www.yubi.wang/api/article/list',
+              method: 'GET',
+              data: {
+                ...baseParams,
+                weigh: 0,   // 查询weigh等于0的文章
+                page: 1,
+                limit: normalLimit,
+                order: "publishtime desc"
+              },
+              success: (res) => {
+                if (res.data && res.data.code === 1) {
+                  innerResolve(res.data);
+                } else {
+                  innerReject(res.data || { msg: '获取普通文章失败' });
+                }
+              },
+              fail: (err) => {
+                innerReject(err || { msg: '网络请求失败' });
+              }
+            });
+          });
+          
+          // 3. 合并置顶和普通文章
+          const allArticles = [
+            ...(topResult.data || []),
+            ...(normalResult.data || [])
+          ];
+          
+          // 构造返回结果
+          resolve({
+            code: 1,
+            data: allArticles,
+            // 标记这是合并的结果
+            isMergedResult: true
+          });
+          return;
         } else {
-          reject(res.data || { msg: '获取文章列表失败' });
+          // 置顶文章已经足够填满当前页面
+          resolve(topResult);
+          return;
         }
-      },
-      fail: (err) => {
-        reject(err || { msg: '网络请求失败' });
       }
-    });
+      
+      // 常规分页请求（除了第一页以外的请求）
+      wx.request({
+        url: 'https://www.yubi.wang/api/article/list',
+        method: 'GET',
+        data: {
+          ...baseParams,
+          page,
+          limit: pageSize,
+          order,
+          // 如果不是第一页，只获取非置顶文章
+          ...(page > 1 ? { weigh: 0 } : {})
+        },
+        success: (res) => {
+          if (res.data && res.data.code === 1) {
+            resolve(res.data);
+          } else {
+            reject(res.data || { msg: '获取文章列表失败' });
+          }
+        },
+        fail: (err) => {
+          reject(err || { msg: '网络请求失败' });
+        }
+      });
+    } catch (error) {
+      reject(error || { msg: '获取文章列表失败' });
+    }
   });
 }
 
