@@ -9,8 +9,14 @@
     </view>
   </view>
 
-  <!-- 搜索结果 -->
-  <view class="search-result">
+  <!-- 标签导航 -->
+  <view class="tab-container">
+    <view class="tab {{activeTab === 'article' ? 'active' : ''}}" bindtap="switchTab" data-tab="article">文章</view>
+    <view class="tab {{activeTab === 'doctor' ? 'active' : ''}}" bindtap="switchTab" data-tab="doctor">专家</view>
+  </view>
+
+  <!-- 文章搜索结果 -->
+  <view class="search-result" wx:if="{{activeTab === 'article'}}">
     <!-- 加载中 -->
     <view class="loading-container" wx:if="{{loading}}">
       <view class="loading">加载中...</view>
@@ -18,12 +24,12 @@
 
     <!-- 无搜索结果 -->
     <view class="empty-container" wx:elif="{{searchResults.length === 0 && !loading}}">
-      <view class="empty-text">没有找到相关内容</view>
+      <view class="empty-text">没有找到相关文章</view>
     </view>
 
     <!-- 有搜索结果 -->
     <view class="result-list" wx:else>
-      <view class="article-item" wx:for="{{searchResults}}" wx:key="id" bindtap="goToArticleDetail" data-id="{{item.id}}">
+      <view class="article-item" wx:for="{{searchResults}}" wx:key="uniqueKey" bindtap="goToArticleDetail" data-id="{{item.id}}">
         <view class="article-image" wx:if="{{item.image}}">
           <image src="{{item.image}}" mode="aspectFill"></image>
         </view>
@@ -45,6 +51,45 @@
       <view class="loading-status">
         <view wx:if="{{loadingMore}}" class="loading">加载更多中...</view>
         <view wx:elif="{{!hasMore && searchResults.length > 0}}" class="no-more">没有更多了</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 专家搜索结果 -->
+  <view class="search-result" wx:if="{{activeTab === 'doctor'}}">
+    <!-- 加载中 -->
+    <view class="loading-container" wx:if="{{doctorLoading}}">
+      <view class="loading">加载中...</view>
+    </view>
+
+    <!-- 无搜索结果 -->
+    <view class="empty-container" wx:elif="{{doctorResults.length === 0 && !doctorLoading}}">
+      <view class="empty-text">没有找到相关专家</view>
+    </view>
+
+    <!-- 有搜索结果 -->
+    <view class="result-list" wx:else>
+      <view class="doctor-item" wx:for="{{doctorResults}}" wx:key="id" bindtap="goToDoctorDetail" data-id="{{item.id}}">
+        <view class="doctor-avatar">
+          <image src="{{item.head_img}}" mode="aspectFill"></image>
+        </view>
+        <view class="doctor-info">
+          <view class="doctor-header">
+            <text class="doctor-name">{{item.name}}</text>
+            <text class="doctor-title">{{item.title_text}}</text>
+            <view class="doctor-auth" wx:if="{{item.auth_text}}">{{item.auth_text}}</view>
+          </view>
+          <view class="doctor-hospital">{{item.hospital_name}}</view>
+          <view class="doctor-stats">
+            <text wx:if="{{item.specialties_text}}">擅长：{{item.specialties_text}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <!-- 加载状态 -->
+      <view class="loading-status">
+        <view wx:if="{{doctorLoadingMore}}" class="loading">加载更多中...</view>
+        <view wx:elif="{{!doctorHasMore && doctorResults.length > 0}}" class="no-more">没有更多了</view>
       </view>
     </view>
   </view>
