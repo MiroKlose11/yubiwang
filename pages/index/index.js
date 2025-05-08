@@ -1,5 +1,5 @@
 // index.js
-const { getArticleList } = require('../../utils/api');
+const { getArticleList, getCategories, getPageList, getPageDetail } = require('../../utils/api');
 const { formatTime } = require('../../utils/util');
 const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 
@@ -83,6 +83,9 @@ Page({
     AUTH_MAP: AUTH_MAP,
     TITLE_MAP: TITLE_MAP,
     SPECIALTY_MAP: SPECIALTY_MAP,
+    pages: [], // 页面列表
+    filteredPages: [], // 过滤后的页面列表
+    pagesLoading: false, // 页面列表加载状态
   },
 
   onLoad(options) {
@@ -228,6 +231,9 @@ Page({
     if (categoryId === 7 || categoryId === 11) {
       // 加载医生列表
       this.loadDoctors(true);
+    } else if (categoryId === 12) {
+      // 加载学术公告页面列表
+      this.loadPages();
     } else {
       this.filterArticles();
 
@@ -254,7 +260,7 @@ Page({
 
   // 根据当前选择的分类过滤文章
   filterArticles() {
-    const { articles, currentCategory, isSearching, searchKeyword } = this.data;
+    const { articles, currentCategory, isSearching, searchKeyword, pages } = this.data;
     let filteredArticles;
 
     // 如果在搜索模式，直接返回
@@ -273,10 +279,17 @@ Page({
         [2, 8, 9, 10, 26].includes(item.channel_id)
       );
     } else if (currentCategory === 12) {
-      // 学术公告 - channel_id为16的文章
-      filteredArticles = articles.filter(item =>
-        item.channel_id === 16
-      );
+      // 学术公告 - 使用pages数据
+      if (pages && pages.length > 0) {
+        // 使用页面数据作为文章列表
+        filteredArticles = this.data.filteredPages;
+      } else {
+        // 如果没有页面数据，尝试从服务器获取
+        if (!this.data.pagesLoading) {
+          this.loadPages();
+        }
+        filteredArticles = [];
+      }
     } else if (currentCategory === 7 || currentCategory === 11) {
       // 签约专家和授权专家暂时不展示任何文章
       filteredArticles = [];
@@ -394,9 +407,18 @@ Page({
 
   // 下拉刷新
   onPullDownRefresh() {
-    if (this.data.currentCategory === 7 || this.data.currentCategory === 11) {
+    const { currentCategory } = this.data;
+    
+    if (currentCategory === 7 || currentCategory === 11) {
       // 刷新医生列表
       this.loadDoctors(true).then(() => {
+        wx.stopPullDownRefresh();
+      }).catch(() => {
+        wx.stopPullDownRefresh();
+      });
+    } else if (currentCategory === 12) {
+      // 刷新学术公告页面列表
+      this.loadPages().then(() => {
         wx.stopPullDownRefresh();
       }).catch(() => {
         wx.stopPullDownRefresh();
@@ -849,5 +871,67 @@ Page({
       
       this.setData({ locations });
     }
+  },
+
+  // 加载学术公告页面列表
+  async loadPages() {
+    if (this.data.pagesLoading) return;
+
+    this.setData({ pagesLoading: true });
+
+    try {
+      const res = await getPageList({ type: 'page_whole' });
+      const pageList = res.data || [];
+
+      // 处理页面数据
+      const processedPages = pageList.map((item, index) => {
+        // 处理图片路径
+        if (item.image) {
+          if (!item.image.startsWith('http')) {
+            item.image = `https://www.yubi.wang${item.image}`;
+          }
+        } else {
+          item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
+        }
+
+        // 生成唯一key
+        item.uniqueKey = 'page_' + item.id + '_' + index;
+        
+        return item;
+      });
+
+      this.setData({
+        pages: processedPages,
+        filteredPages: processedPages,
+        pagesLoading: false,
+        noData: processedPages.length === 0
+      });
+
+      // 如果当前是学术公告分类，更新过滤后的文章列表
+      if (this.data.currentCategory === 12) {
+        this.filterArticles();
+      }
+
+      return processedPages;
+    } catch (error) {
+      console.error('获取页面列表失败', error);
+      this.setData({
+        pagesLoading: false,
+        noData: this.data.pages.length === 0
+      });
+      wx.showToast({
+        title: '获取学术公告列表失败',
+        icon: 'none'
+      });
+      throw error;
+    }
+  },
+
+  // 跳转到页面详情
+  goToPageDetail(e) {
+    const { id } = e.currentTarget.dataset;
+    wx.navigateTo({
+      url: `/pages/page/detail?id=${id}`
+    });
   },
 });

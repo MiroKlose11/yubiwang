@@ -4,7 +4,8 @@
     "pages/logs/logs",
     "pages/article/article",
     "pages/search/search",
-    "pages/doctor/detail"
+    "pages/doctor/detail",
+    "pages/page/detail"
   ],
   "window": {
     "backgroundTextStyle": "light",

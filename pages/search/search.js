@@ -4,6 +4,27 @@ const { formatTime } = require('../../utils/util');
 // 服务器域名
 const HOST = 'https://www.yubi.wang';
 
+// 常量定义，避免重复声明
+const AUTH_MAP = {
+  '27': '秘书', '1': '顾问专家', '2': '导师专家', 
+  '3': '核心专家', '4': '秘书长', '5': '常务委员', '6': '委员'
+};
+
+const TITLE_MAP = {
+  '7': '主任医师', '8': '副主任医师', '9': '主治医师', 
+  '10': '助理医师', '22': '住院医师', '23': '医学生', 
+  '24': '美学顾问', '25': '运营管理'
+};
+
+const SPECIALTY_MAP = {
+  '18': '初鼻整形',
+  '19': '鼻修复',
+  '20': '眉弓',
+  '21': '鼻唇沟',
+  '26': '运营管理',
+  '28': '学术教育'
+};
+
 Page({
   data: {
     keyword: '', // 搜索关键词
@@ -20,8 +41,8 @@ Page({
     orderby: '', // 排序字段
     orderway: 'desc', // 排序方式
     activeTab: 'article', // 当前激活的标签：article或doctor
-    limit: 10, // Added for the new searchArticles function
-    noResult: false // Added for the new searchArticles function
+    limit: 10, // 每页记录数
+    noResult: false // 无搜索结果标志
   },
 
   /**
@@ -122,7 +143,12 @@ Page({
    * 搜索文章
    */
   async searchArticles(keyword) {
-    this.setData({ loading: true, loadingMore: false });
+    if (!keyword) return;
+    
+    this.setData({ 
+      loading: this.data.page === 1,
+      loadingMore: this.data.page > 1
+    });
 
     try {
       // 使用api.js中的searchArticles函数
@@ -138,28 +164,28 @@ Page({
       results = this.processResults(results);
 
       // 更新搜索结果
+      const newData = {
+        hasMore: results.length === this.data.limit,
+        loading: false,
+        loadingMore: false
+      };
+
       if (this.data.page === 1) {
-        this.setData({
-          searchResults: results,
-          hasMore: results.length === this.data.limit,
-          loading: false,
-          noResult: results.length === 0
-        });
+        newData.searchResults = results;
+        newData.noResult = results.length === 0;
       } else {
-        this.setData({
-          searchResults: [...this.data.searchResults, ...results],
-          hasMore: results.length === this.data.limit,
-          loading: false,
-          loadingMore: false
-        });
+        newData.searchResults = [...this.data.searchResults, ...results];
       }
+      
+      this.setData(newData);
     } catch (error) {
       console.error('搜索文章失败', error);
       this.setData({
         loading: false,
         loadingMore: false,
-        noResult: this.data.page === 1
+        noResult: this.data.page === 1 && this.data.searchResults.length === 0
       });
+      
       wx.showToast({
         title: '搜索失败',
         icon: 'none'
@@ -174,7 +200,8 @@ Page({
     if (!keyword) return;
     
     this.setData({
-      doctorLoading: this.data.doctorPage === 1
+      doctorLoading: this.data.doctorPage === 1,
+      doctorLoadingMore: this.data.doctorPage > 1
     });
 
     wx.request({
@@ -224,9 +251,21 @@ Page({
 
   /**
    * 获取专家详细信息
+   * @param {Array} idList 专家ID列表
+   * @param {Object} options 可选参数
+   * @param {Boolean} options.isLoadMore 是否是加载更多操作
+   * @param {Number} options.nextPage 下一页页码（仅当isLoadMore为true时有效）
    */
-  fetchDoctorDetails(idList) {
-    if (!idList || idList.length === 0) return;
+  fetchDoctorDetails(idList, options = {}) {
+    if (!idList || idList.length === 0) {
+      this.setData({ 
+        doctorLoading: false,
+        doctorLoadingMore: false 
+      });
+      return;
+    }
+    
+    const { isLoadMore, nextPage } = options;
     
     const promises = idList.map(id => {
       return new Promise((resolve) => {
@@ -258,31 +297,13 @@ Page({
         }
         
         // 处理认证
-        const AUTH_MAP = {
-          '27': '秘书', '1': '顾问专家', '2': '导师专家', 
-          '3': '核心专家', '4': '秘书长', '5': '常务委员', '6': '委员'
-        };
         doctor.auth_text = AUTH_MAP[doctor.honor_auth] || '';
         
         // 处理职称
-        const TITLE_MAP = {
-          '7': '主任医师', '8': '副主任医师', '9': '主治医师', 
-          '10': '助理医师', '22': '住院医师', '23': '医学生', 
-          '24': '美学顾问', '25': '运营管理'
-        };
         doctor.title_text = TITLE_MAP[doctor.positional_title] || doctor.positional_title || '';
         
         // 处理专长字段，用于显示在搜索结果中
         if (doctor.specialties) {
-          const SPECIALTY_MAP = {
-            '18': '初鼻整形',
-            '19': '鼻修复',
-            '20': '眉弓',
-            '21': '鼻唇沟',
-            '26': '运营管理',
-            '28': '学术教育'
-          };
-          
           const specialtiesArr = doctor.specialties.split(',');
           doctor.specialties_text = specialtiesArr
             .map(id => SPECIALTY_MAP[id])
@@ -294,21 +315,27 @@ Page({
       });
       
       // 更新数据
-      if (this.data.doctorPage === 1) {
-        this.setData({
-          doctorResults: processedDoctors,
-          doctorLoading: false,
-          doctorLoadingMore: false,
-          doctorHasMore: validDoctors.length === idList.length && idList.length === 10
-        });
+      const newData = {
+        doctorLoading: false,
+        doctorLoadingMore: false,
+        doctorHasMore: validDoctors.length === idList.length && idList.length === 10
+      };
+      
+      // 根据是否为加载更多来决定页码和结果合并方式
+      if (isLoadMore) {
+        newData.doctorPage = nextPage;
+        newData.doctorResults = [...this.data.doctorResults, ...processedDoctors];
       } else {
-        this.setData({
-          doctorResults: [...this.data.doctorResults, ...processedDoctors],
-          doctorLoading: false,
-          doctorLoadingMore: false,
-          doctorHasMore: validDoctors.length === idList.length && idList.length === 10
-        });
+        newData.doctorResults = processedDoctors;
       }
+      
+      this.setData(newData);
+    }).catch(error => {
+      console.error('处理专家详情失败', error);
+      this.setData({
+        doctorLoading: false,
+        doctorLoadingMore: false
+      });
     });
   },
 
@@ -316,24 +343,106 @@ Page({
    * 加载更多搜索结果
    */
   loadMoreResults() {
-    if (this.data.activeTab === 'article') {
-      if (this.data.loadingMore || !this.data.hasMore) return;
-      
+    try {
+      if (this.data.activeTab === 'article') {
+        if (this.data.loadingMore || !this.data.hasMore) return;
+        
+        // 使用变量保存当前页码加1
+        const nextPage = this.data.page + 1;
+        
+        // 先标记加载中状态
+        this.setData({
+          loadingMore: true
+        }, () => {
+          // 发起网络请求获取下一页数据
+          searchArticles({
+            search: this.data.keyword,
+            page: nextPage,
+            pagesize: this.data.limit
+          }).then(res => {
+            let results = res.data || [];
+            results = this.processResults(results);
+            
+            // 只有请求成功后再更新页码和数据
+            this.setData({
+              page: nextPage,
+              searchResults: [...this.data.searchResults, ...results],
+              hasMore: results.length === this.data.limit,
+              loadingMore: false
+            });
+          }).catch(error => {
+            console.error('加载更多文章失败', error);
+            this.setData({
+              loadingMore: false
+            });
+            wx.showToast({
+              title: '加载更多失败',
+              icon: 'none'
+            });
+          });
+        });
+      } else {
+        if (this.data.doctorLoadingMore || !this.data.doctorHasMore) return;
+        
+        // 使用变量保存当前页码加1
+        const nextDoctorPage = this.data.doctorPage + 1;
+        
+        // 先标记加载中状态
+        this.setData({
+          doctorLoadingMore: true
+        }, () => {
+          // 发送请求，但不更新页码
+          wx.request({
+            url: `${HOST}/api/member/search`,
+            method: 'GET',
+            data: {
+              keyword: this.data.keyword,
+              page: nextDoctorPage,
+              limit: 10
+            },
+            success: (res) => {
+              if (res.data && res.data.code === 1 && res.data.data) {
+                const doctorIds = res.data.data;
+                
+                if (doctorIds.length === 0) {
+                  this.setData({
+                    doctorLoadingMore: false,
+                    doctorHasMore: false
+                  });
+                  return;
+                }
+                
+                // 使用统一的fetchDoctorDetails函数并传入加载更多的参数
+                this.fetchDoctorDetails(doctorIds.map(item => item.id), {
+                  isLoadMore: true,
+                  nextPage: nextDoctorPage
+                });
+              } else {
+                this.setData({
+                  doctorLoadingMore: false
+                });
+              }
+            },
+            fail: (err) => {
+              console.error('加载更多专家失败', err);
+              this.setData({
+                doctorLoadingMore: false
+              });
+              wx.showToast({
+                title: '加载更多专家失败',
+                icon: 'none'
+              });
+            }
+          });
+        });
+      }
+    } catch (error) {
+      console.error('loadMoreResults错误', error);
+      // 恢复UI状态
       this.setData({
-        page: this.data.page + 1,
-        loadingMore: true
+        loadingMore: false,
+        doctorLoadingMore: false
       });
-      
-      this.searchArticles(this.data.keyword);
-    } else {
-      if (this.data.doctorLoadingMore || !this.data.doctorHasMore) return;
-      
-      this.setData({
-        doctorPage: this.data.doctorPage + 1,
-        doctorLoadingMore: true
-      });
-      
-      this.searchDoctors(this.data.keyword);
     }
   },
 
@@ -384,7 +493,6 @@ Page({
       // 确保有唯一key
       item.uniqueKey = (item.id || '') + '_search_' + index;
       
-      // 其他处理逻辑...
       // 处理时间
       if (item.createTime || item.publishtime) {
         const timestamp = item.publishtime || item.createTime;
@@ -397,11 +505,7 @@ Page({
           item.image = `${HOST}${item.image}`;
         }
       } else if (item.coverImg) {
-        if (item.coverImg.startsWith('/uploads/')) {
-          item.image = `${HOST}${item.coverImg}`;
-        } else {
-          item.image = item.coverImg;
-        }
+        item.image = item.coverImg.startsWith('/uploads/') ? `${HOST}${item.coverImg}` : item.coverImg;
       } else {
         item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
       }

@@ -138,6 +138,85 @@ function getArticleList(params = {}) {
 }
 
 /**
+ * 获取页面列表
+ * 
+ * @param {Object} params 参数对象
+ * @param {String} params.type 页面类型，可选筛选
+ * @returns {Promise} 返回Promise对象
+ */
+function getPageList(params = {}) {
+  const { type = 'page_whole' } = params;
+  
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: 'https://www.yubi.wang/api/page/list',
+      method: 'GET',
+      data: {
+        type
+      },
+      success: (res) => {
+        if (res.data && res.data.code === 1) {
+          resolve(res.data);
+        } else {
+          reject(res.data || { msg: '获取页面列表失败' });
+        }
+      },
+      fail: (err) => {
+        reject(err || { msg: '网络请求失败' });
+      }
+    });
+  });
+}
+
+/**
+ * 获取页面详情
+ * 
+ * @param {Number} id 页面ID
+ * @returns {Promise} 返回Promise对象
+ */
+function getPageDetail(id) {
+  if (!id) {
+    return Promise.reject({ msg: '页面ID不能为空' });
+  }
+  
+  console.log('准备请求页面详情API, ID:', id);
+  return new Promise((resolve, reject) => {
+    wx.request({
+      url: 'https://www.yubi.wang/api/page/detail',
+      method: 'GET',
+      data: {
+        id
+      },
+      header: {
+        'content-type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      success: (res) => {
+        console.log('页面详情API响应状态码:', res.statusCode);
+        console.log('页面详情API返回数据:', res.data);
+        
+        if (res.statusCode === 200) {
+          if (res.data && res.data.code === 1) {
+            resolve(res.data);
+          } else {
+            const errorMsg = (res.data && res.data.msg) ? res.data.msg : '获取页面详情失败';
+            console.error('API返回错误:', errorMsg);
+            reject({ msg: errorMsg, data: res.data });
+          }
+        } else {
+          console.error('API请求失败，状态码:', res.statusCode);
+          reject({ msg: `请求失败，状态码: ${res.statusCode}` });
+        }
+      },
+      fail: (err) => {
+        console.error('获取页面详情网络请求失败:', err);
+        reject(err || { msg: '网络请求失败' });
+      }
+    });
+  });
+}
+
+/**
  * 获取文章详情
  * @param {String} id 文章ID
  */
@@ -238,5 +317,7 @@ module.exports = {
   getArticleList,
   getArticleDetail,
   getCategories,
-  searchArticles
+  searchArticles,
+  getPageList,
+  getPageDetail
 }; 

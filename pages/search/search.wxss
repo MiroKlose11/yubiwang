@@ -8,6 +8,8 @@ page {
   display: flex;
   flex-direction: column;
   height: 100%;
+  background-color: #f8f8f8;
+  min-height: 100vh;
 }
 
 /* 搜索头部 */
@@ -19,6 +21,8 @@ page {
   left: 0;
   right: 0;
   z-index: 100;
+  border-bottom: 0;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.05);
 }
 
 /* 搜索框 */
@@ -58,6 +62,8 @@ page {
   right: 0;
   z-index: 99;
   border-bottom: 1rpx solid #eee;
+  box-shadow: 0 2rpx 6rpx rgba(0, 0, 0, 0.02);
+  margin-top: -1rpx;
 }
 
 .tab {
@@ -86,11 +92,19 @@ page {
   border-radius: 2rpx;
 }
 
+/* 主内容区域 */
+.main-content {
+  flex: 1;
+  padding-top: 170rpx; /* 腾出位置给固定的头部和导航 */
+  box-sizing: border-box;
+}
+
 /* 搜索结果区域 */
 .search-result {
   flex: 1;
-  margin-top: 190rpx; /* 搜索框高度 + 标签高度 */
   padding: 20rpx;
+  padding-bottom: 100rpx; /* 增加底部padding，确保内容完全显示 */
+  box-sizing: border-box;
 }
 
 /* 加载中 */
