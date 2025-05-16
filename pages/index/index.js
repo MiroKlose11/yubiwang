@@ -498,7 +498,7 @@ Page({
     }
 
     // 分享标题 - 使用当前分类
-    const title = `玉鼻网 - ${categoryName}`;
+    const title = `元生玉鼻 - ${categoryName}`;
 
     // 分享图片 - 使用固定图片
     const imageUrl = 'https://www.yubi.wang/uploads/20250317/d909d692a5accd879333044a0a85c089.jpg';
@@ -537,7 +537,7 @@ Page({
     }
 
     // 分享标题 - 使用当前分类
-    const title = `玉鼻网 - ${categoryName}`;
+    const title = `元生玉鼻 - ${categoryName}`;
 
     // 分享图片 - 使用固定图片
     const imageUrl = 'https://www.yubi.wang/uploads/20250317/d909d692a5accd879333044a0a85c089.jpg';

@@ -68,6 +68,32 @@
   line-height: 1.8;
 }
 
+/* 图片加载指示器 */
+.image-loading-indicator {
+  margin: 20rpx 0;
+  padding: 10rpx;
+  background-color: #f8f8f8;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  color: #666;
+  text-align: center;
+}
+
+.progress-bar {
+  height: 6rpx;
+  background-color: #e0e0e0;
+  border-radius: 3rpx;
+  margin-top: 10rpx;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: linear-gradient(90deg, #2b5876, #4e4376);
+  border-radius: 3rpx;
+  transition: width 0.3s;
+}
+
 /* 确保图片自适应宽度 */
 .rich-content image,
 .rich-content img {
@@ -76,6 +102,8 @@
   display: block;
   margin: 20rpx auto;
   border-radius: 8rpx;
+  box-shadow: 0 2rpx 10rpx rgba(0,0,0,0.05);
+  transition: opacity 0.3s ease;
 }
 
 /* 段落样式 */

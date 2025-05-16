@@ -212,14 +212,14 @@ Page({
     const { article, firstImage } = this.data;
     if (!article) {
       return {
-        title: '玉鼻网',
+        title: '元生玉鼻',
         path: '/pages/index/index',
         imageUrl: DEFAULT_IMAGE
       };
     }
     
     // 使用seotitle作为分享标题，如果没有则使用普通标题
-    const title = article.seotitle || article.title || '玉鼻网';
+    const title = article.seotitle || article.title || '元生玉鼻';
     
     // 构建分享路径
     const path = `/pages/article/article?id=${article.id}`;
@@ -249,7 +249,7 @@ Page({
     const { article } = this.data;
     if (!article) {
       return {
-        title: '玉鼻网',
+        title: '元生玉鼻',
         query: '',
         imageUrl: DEFAULT_IMAGE
       };

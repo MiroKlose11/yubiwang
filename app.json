@@ -10,10 +10,19 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#2b5876",
-    "navigationBarTitleText": "玉鼻网",
+    "navigationBarTitleText": "美鼻网",
     "navigationBarTextStyle": "white"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "networkTimeout": {
+    "request": 10000,
+    "downloadFile": 10000
+  },
+  "permission": {
+    "scope.writePhotosAlbum": {
+      "desc": "保存图片至相册"
+    }
+  }
 }

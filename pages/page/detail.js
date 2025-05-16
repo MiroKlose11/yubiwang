@@ -14,7 +14,9 @@ Page({
     page: null,
     loading: true,
     error: false,
-    errorMsg: ''
+    errorMsg: '',
+    imageList: [], // 存储图片列表
+    loadedImages: 0 // 已加载图片计数
   },
 
   /**
@@ -117,12 +119,88 @@ Page({
     // 处理//开头的协议相对路径
     processedContent = processedContent.replace(/src="\/\/www/g, 'src="https://www');
     
-    // 为所有图片添加样式
-    processedContent = processedContent.replace(/<img/g, '<img style="max-width:100%;height:auto;display:block;margin:20rpx auto;"');
+    // 为所有图片添加样式和缓存属性
+    processedContent = processedContent.replace(/<img/g, '<img mode="widthFix" show-menu-by-longpress="true" data-src="$&" style="max-width:100%;height:auto;display:block;margin:20rpx auto;" cache-mode="true"');
     
     console.log('处理后的内容片段:', processedContent.substring(0, 200) + '...');
     
+    // 提取所有图片URL
+    this.extractImageUrls(processedContent);
+    
     return processedContent;
+  },
+  
+  /**
+   * 提取内容中的所有图片URL
+   */
+  extractImageUrls(content) {
+    const imgRegex = /src="([^"]+)"/g;
+    const imageList = [];
+    let match;
+    
+    while ((match = imgRegex.exec(content)) !== null) {
+      const imageUrl = match[1];
+      if (imageUrl && !imageList.includes(imageUrl)) {
+        imageList.push(imageUrl);
+      }
+    }
+    
+    console.log(`提取到${imageList.length}张图片`);
+    this.setData({ imageList });
+    
+    // 预加载图片
+    this.preloadImages(imageList);
+  },
+  
+  /**
+   * 预加载图片
+   */
+  preloadImages(imageList) {
+    if (!imageList || imageList.length === 0) return;
+    
+    let loadedCount = 0;
+    
+    imageList.forEach((imgUrl, index) => {
+      // 使用getImageInfo而不是createImage
+      wx.getImageInfo({
+        src: imgUrl,
+        success: (res) => {
+          loadedCount++;
+          console.log(`图片预加载成功 ${loadedCount}/${imageList.length}`, res.width, 'x', res.height);
+          this.setData({ loadedImages: loadedCount });
+        },
+        fail: (err) => {
+          console.error(`图片加载失败: ${imgUrl}`, err);
+          loadedCount++;
+          this.setData({ loadedImages: loadedCount });
+        }
+      });
+    });
+  },
+
+  /**
+   * 图片点击预览
+   */
+  onImageTap(e) {
+    const src = e.target.dataset.src;
+    if (!src) return;
+    
+    const { imageList } = this.data;
+    wx.previewImage({
+      current: src,
+      urls: imageList
+    });
+  },
+  
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload() {
+    // 清除缓存变量
+    this.setData({
+      imageList: [],
+      loadedImages: 0
+    });
   },
 
   /**

@@ -16,9 +16,17 @@
       <view class="page-time">{{page.createTime}}</view>
     </view>
     
+    <!-- 图片加载指示器 -->
+    <view class="image-loading-indicator" wx:if="{{imageList.length > 0 && loadedImages < imageList.length}}">
+      <text>图片加载中 {{loadedImages}}/{{imageList.length}}</text>
+      <view class="progress-bar">
+        <view class="progress" style="width: {{loadedImages/imageList.length*100}}%"></view>
+      </view>
+    </view>
+    
     <!-- 页面内容 -->
     <view class="page-content">
-      <rich-text class="rich-content" nodes="{{page.content}}"></rich-text>
+      <rich-text class="rich-content" nodes="{{page.content}}" bindtap="onImageTap"></rich-text>
     </view>
   </view>
 </view> 
