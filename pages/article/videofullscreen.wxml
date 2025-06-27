@@ -1,0 +1,7 @@
+<view class="fullscreen-video-container">
+  <video class="fullscreen-video-top" src="{{src}}" controls autoplay show-center-play-btn="true" object-fit="contain" style="width:100vw;height:100vh;background:#000;" />
+  <view class="video-info-bottom">
+    <view class="video-title">{{title}}</view>
+    <view class="video-desc" wx:if="{{desc}}">{{desc}}</view>
+  </view>
+</view> 

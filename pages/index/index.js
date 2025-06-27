@@ -57,6 +57,7 @@ Page({
     // 分类相关
     categories: [
       { id: 1, name: '新闻动态' },
+      { id: 3, name: '医术家' },
       { id: 7, name: '授权专家' },
       { id: 11, name: '签约专家' },
       { id: 2, name: '玉鼻优品' },
@@ -271,7 +272,12 @@ Page({
     if (currentCategory === 1) {
       // 新闻动态 - channel_id为3 4 5 6的文章
       filteredArticles = articles.filter(item =>
-        [3, 4, 5, 6].includes(item.channel_id)
+        [3, 4, 5].includes(item.channel_id)
+      );
+    } else if (currentCategory === 3) {
+      // 医术家 - 只显示只有一个竖版视频的文章
+      filteredArticles = articles.filter(item =>
+        [6].includes(item.channel_id)
       );
     } else if (currentCategory === 2) {
       // 玉鼻优品 - channel_id为2 8 9 10 26的文章

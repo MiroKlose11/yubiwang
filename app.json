@@ -5,12 +5,13 @@
     "pages/article/article",
     "pages/search/search",
     "pages/doctor/detail",
-    "pages/page/detail"
+    "pages/page/detail",
+    "pages/article/videofullscreen"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#2b5876",
-    "navigationBarTitleText": "美鼻网",
+    "navigationBarTitleText": "元生玉鼻",
     "navigationBarTextStyle": "white"
   },
   "style": "v2",

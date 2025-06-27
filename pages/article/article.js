@@ -20,7 +20,8 @@ Page({
     error: false,
     specialImage: '', // 单独的特殊图片(二维码等)
     hasSpecialImage: false, // 是否有特殊图片
-    imageList: [] // 存储文章中的所有图片URL
+    imageList: [], // 存储文章中的所有图片URL
+    onlyVideo: false
   },
 
   /**
@@ -119,6 +120,33 @@ Page({
           this.setData({
             imageList: imageList
           });
+        }
+        
+        // 处理富文本内容和视频
+        if (articleData.content) {
+          const { contentBlocks, imageList } = this.processContentWithVideo(articleData.content);
+          this.setData({ imageList });
+          await this.setVideoAspectRatios(contentBlocks);
+          // 判断是否只有一个竖版视频且其它内容全为空
+          const videoBlocks = contentBlocks.filter(block => block.type === 'video');
+          const htmlBlocksEmpty = contentBlocks
+            .filter(block => block.type === 'html')
+            .every(block => (block.html || '').replace(/<[^>]+>/g, '').replace(/\s+/g, '') === '');
+          if (
+            videoBlocks.length === 1 &&
+            htmlBlocksEmpty &&
+            videoBlocks[0].aspectClass === 'aspect-9-16'
+          ) {
+            // 跳转前打印参数日志
+            console.log('跳转全屏参数', videoBlocks[0].src, articleData.title, articleData.description);
+            wx.navigateTo({
+              url: `/pages/article/videofullscreen?src=${encodeURIComponent(videoBlocks[0].src)}&title=${encodeURIComponent(articleData.title || '')}&desc=${encodeURIComponent(articleData.description || '')}&image=${encodeURIComponent(articleData.image || '')}`
+            });
+            return;
+          }
+          this.setData({ onlyVideo: false });
+        } else {
+          this.setData({ contentBlocks: [], onlyVideo: false });
         }
         
         this.setData({
@@ -284,5 +312,78 @@ Page({
   // 返回列表页
   goBack() {
     wx.navigateBack();
+  },
+
+  /**
+   * 处理富文本内容，提取视频并分段
+   */
+  processContentWithVideo(content) {
+    const videoList = [];
+    let idx = 0;
+    // 支持自闭合和成对video标签，提取width/height属性
+    content = content.replace(/<video([^>]*)src=['"]?([^'"> ]+)['"]?([^>]*)\/?>(?:.*?<\/video>)?/gi, (match, attrs1, src, attrs2) => {
+      // 合并所有属性
+      const attrs = (attrs1 + ' ' + attrs2);
+      let width = 0, height = 0;
+      const widthMatch = attrs.match(/width=['"]?(\d+)/i);
+      const heightMatch = attrs.match(/height=['"]?(\d+)/i);
+      if (widthMatch) width = parseInt(widthMatch[1]);
+      if (heightMatch) height = parseInt(heightMatch[1]);
+      videoList.push({ src, width, height });
+      return `<!--VIDEO_PLACEHOLDER_${idx++}-->`;
+    });
+    // 提取所有图片URL
+    let imageList = [];
+    const imgRegexAll = /<img[^>]*src=["']([^"']+)["'][^>]*>/gi;
+    let matchAll;
+    while ((matchAll = imgRegexAll.exec(content)) !== null) {
+      if (matchAll[1]) {
+        imageList.push(matchAll[1]);
+      }
+    }
+    // 分段处理
+    const blocks = [];
+    let lastIdx = 0;
+    const regex = /<!--VIDEO_PLACEHOLDER_(\d+)-->/g;
+    let m;
+    while ((m = regex.exec(content)) !== null) {
+      if (m.index > lastIdx) {
+        blocks.push({ type: 'html', html: content.slice(lastIdx, m.index) });
+      }
+      // 传递width/height
+      blocks.push({ type: 'video', src: videoList[Number(m[1])].src, width: videoList[Number(m[1])].width, height: videoList[Number(m[1])].height });
+      lastIdx = m.index + m[0].length;
+    }
+    if (lastIdx < content.length) {
+      blocks.push({ type: 'html', html: content.slice(lastIdx) });
+    }
+    return { contentBlocks: blocks, imageList };
+  },
+
+  /**
+   * 为每个视频分配横竖屏比例class
+   */
+  async setVideoAspectRatios(contentBlocks) {
+    const promises = contentBlocks.map(async (block) => {
+      if (block.type === 'video' && block.src) {
+        // 优先用标签上的width/height
+        if (block.width && block.height) {
+          const ratio = block.width / block.height;
+          block.aspectClass = ratio < 0.9 ? 'aspect-9-16' : 'aspect-16-9';
+        } else {
+          // 没有就用getVideoInfo
+          try {
+            const res = await wx.getVideoInfo({ src: block.src });
+            const ratio = res.width / res.height;
+            block.aspectClass = ratio < 0.9 ? 'aspect-9-16' : 'aspect-16-9';
+          } catch (e) {
+            block.aspectClass = 'aspect-16-9';
+          }
+        }
+      }
+      return block;
+    });
+    const newBlocks = await Promise.all(promises);
+    this.setData({ contentBlocks: newBlocks });
   }
 }); 

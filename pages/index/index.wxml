@@ -22,10 +22,10 @@
   <view class="swiper-container" wx:if="{{showSwiper}}">
     <swiper class="swiper" indicator-dots="{{true}}" autoplay="{{true}}" interval="{{3000}}" duration="{{500}}" circular="{{true}}">
       <swiper-item>
-        <image src="https://www.yubi.wang/uploads/20241205/7ac1705d502f4ff471ed5f1c0d8e06a7.jpg" mode="aspectFill" class="swiper-image"></image>
+        <image src="https://img.yubi.wang/uploads/20241205/7ac1705d502f4ff471ed5f1c0d8e06a7.jpg" mode="aspectFill" class="swiper-image"></image>
       </swiper-item>
       <swiper-item>
-        <image src="https://www.yubi.wang/uploads/20241205/e539472c636d30ee4065b9d11338f4a9.jpg" mode="aspectFill" class="swiper-image"></image>
+        <image src="https://img.yubi.wang/uploads/20241205/e539472c636d30ee4065b9d11338f4a9.jpg" mode="aspectFill" class="swiper-image"></image>
       </swiper-item>
     </swiper>
   </view>

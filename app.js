@@ -16,7 +16,7 @@ App({
   globalData: {
     userInfo: null,
     // 域名配置
-    host: 'https://www.yubi.wang',
+    host: 'https://img.yubi.wang',
     // 全局图片处理方法
     processImageUrl(url) {
       if (!url) return '';

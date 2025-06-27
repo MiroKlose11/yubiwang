@@ -76,19 +76,25 @@ page {
 }
 
 .category-scroll {
-  white-space: nowrap;
+  display: flex;
+  justify-content: space-between;
+  white-space: normal;
   height: 80rpx;
   width: 100%;
-  padding: 0 15rpx;
+  padding: 0;
+  overflow-x: auto;
 }
 
 .category-item {
-  display: inline-block;
-  padding: 0 25rpx;
-  line-height: 80rpx;
-  font-size: 28rpx;
+  flex: 1 1 0;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  font-size: 26rpx;
   color: #333;
   position: relative;
+  line-height: 80rpx;
 }
 
 .category-item.active {

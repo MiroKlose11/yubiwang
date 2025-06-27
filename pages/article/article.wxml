@@ -8,22 +8,30 @@
   </view>
   
   <view class="article-container" wx:elif="{{article}}">
-    <!-- 文章标题 -->
-    <view class="article-title">{{article.title}}</view>
-    
-    <!-- 文章元信息 -->
-    <view class="article-meta">
-      <view class="article-time">{{article.createTime}}</view>
-      <view class="article-author" wx:if="{{article.author}}">作者：{{article.author}}</view>
-      <view class="article-views" wx:if="{{article.views}}">
-        <text class="views-label">阅读：</text>
-        <text class="views-count">{{article.views}}</text>
+    <!-- 只显示视频时不显示标题、时间、阅读量 -->
+    <block wx:if="{{!onlyVideo}}">
+      <view class="article-title">{{article.title}}</view>
+      <view class="article-meta">
+        <view class="article-time">{{article.createTime}}</view>
+        <view class="article-author" wx:if="{{article.author}}">作者：{{article.author}}</view>
+        <view class="article-views" wx:if="{{article.views}}">
+          <text class="views-label">阅读：</text>
+          <text class="views-count">{{article.views}}</text>
+        </view>
       </view>
-    </view>
-    
-    <!-- 文章内容 -->
+    </block>
+    <!-- 文章内容（分段渲染） -->
     <view class="article-content">
-      <rich-text class="rich-content" nodes="{{article.content}}"></rich-text>
+      <block wx:for="{{contentBlocks}}" wx:key="index">
+        <block wx:if="{{item.type === 'video'}}">
+          <view class="video-area {{item.aspectClass}}">
+            <video src="{{item.src}}" controls show-center-play-btn="true" object-fit="contain" />
+          </view>
+        </block>
+        <block wx:elif="{{item.type === 'html'}}">
+          <rich-text class="rich-content" nodes="{{item.html}}"></rich-text>
+        </block>
+      </block>
     </view>
     
     <!-- 特殊图片区域(二维码等) -->

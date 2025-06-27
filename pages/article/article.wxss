@@ -1,5 +1,7 @@
 /* 文章页样式 */
 .container {
+  width: 100%;
+  max-width: 100%;
   padding: 30rpx;
   box-sizing: border-box;
   font-size: 28rpx;
@@ -43,15 +45,19 @@
 
 /* 文章容器 */
 .article-container {
+  width: 100%;
+  max-width: 100%;
   padding-bottom: 40rpx;
 }
 
 /* 文章标题 */
 .article-title {
+  width: 100%;
   font-size: 40rpx;
   font-weight: bold;
   line-height: 1.4;
   margin-bottom: 30rpx;
+  text-align: left;
 }
 
 /* 文章元信息 */
@@ -220,4 +226,65 @@ view, text, image {
   text-align: center;
   margin-top: 10rpx;
   margin-bottom: 20rpx;
+}
+
+.video-area {
+  width: 100%;
+  max-width: 480px;
+  margin: 20rpx auto;
+  border-radius: 12rpx;
+  overflow: hidden;
+  background: #000;
+  position: relative;
+}
+
+/* 横屏视频 */
+.video-area.aspect-16-9 {
+  padding-top: 56.25%; /* 16:9 */
+}
+
+/* 竖屏视频 */
+.video-area.aspect-9-16 {
+  max-width: 100%;
+  padding-top: 177.77%; /* 9:16 */
+}
+
+.video-area video {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12rpx;
+  background: #000;
+  object-fit: contain;
+}
+
+.aspect-16-9 {
+  padding-top: 56.25%; /* 16:9 */
+}
+.aspect-9-16 {
+  padding-top: 177.77%; /* 9:16 */
+}
+
+.video-info-overlay {
+  position: absolute;
+  left: 0;
+  bottom: 60rpx;
+  width: 100%;
+  background: linear-gradient(to top, rgba(0,0,0,0.7) 80%, rgba(0,0,0,0));
+  color: #fff;
+  padding: 24rpx 24rpx 18rpx 24rpx;
+  box-sizing: border-box;
+  z-index: 2;
+}
+.video-title {
+  font-size: 32rpx;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.3);
+}
+.video-desc {
+  font-size: 26rpx;
+  color: #eee;
+  text-shadow: 0 2rpx 8rpx rgba(0,0,0,0.2);
 } 
