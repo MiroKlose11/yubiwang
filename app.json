@@ -25,5 +25,6 @@
     "scope.writePhotosAlbum": {
       "desc": "保存图片至相册"
     }
-  }
+  },
+  "entryPagePath": "pages/index/index"
 }

@@ -30,23 +30,34 @@ Page({
       }, 1500);
     }
   },
-  onUnload() {
-    wx.reLaunch({
-      url: '/pages/index/index'
-    });
-  },
   onShareAppMessage() {
+    let imageUrl = this.data.image;
+    if (!imageUrl || !/^https:\/\//.test(imageUrl)) {
+      imageUrl = 'https://www.yubi.wang/uploads/20250317/d909d692a5accd879333044a0a85c089.jpg';
+    }
     return {
       title: this.data.title || '元生玉鼻',
-      path: `/pages/article/videofullscreen?src=${encodeURIComponent(this.data.src)}&title=${encodeURIComponent(this.data.title || '')}&desc=${encodeURIComponent(this.data.desc || '')}`,
-      imageUrl: this.data.image || ''
+      path: `/pages/article/videofullscreen?src=${encodeURIComponent(this.data.src)}&title=${encodeURIComponent(this.data.title || '')}&desc=${encodeURIComponent(this.data.desc || '')}&image=${encodeURIComponent(imageUrl)}&category=3`,
+      imageUrl
     };
   },
   onShareTimeline() {
+    let imageUrl = this.data.image;
+    if (!imageUrl || !/^https:\/\//.test(imageUrl)) {
+      imageUrl = 'https://www.yubi.wang/uploads/20250317/d909d692a5accd879333044a0a85c089.jpg';
+    }
     return {
       title: this.data.title || '元生玉鼻',
-      query: `src=${encodeURIComponent(this.data.src)}&title=${encodeURIComponent(this.data.title || '')}&desc=${encodeURIComponent(this.data.desc || '')}`,
-      imageUrl: this.data.image || ''
+      query: `src=${encodeURIComponent(this.data.src)}&title=${encodeURIComponent(this.data.title || '')}&desc=${encodeURIComponent(this.data.desc || '')}&image=${encodeURIComponent(imageUrl)}&category=3`,
+      imageUrl
     };
+  },
+  onShow() {
+    // 如果通过分享卡片带category参数进入，返回首页时带上category=3
+    const pages = getCurrentPages();
+    const current = pages[pages.length - 1];
+    if (current.options && current.options.category == 3) {
+      this._returnToCategory3 = true;
+    }
   }
 }); 

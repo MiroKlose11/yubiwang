@@ -106,6 +106,20 @@ Page({
     this.loadArticles(true);
   },
 
+  onShow() {
+    const app = getApp();
+    if (app.globalData.forceCategory) {
+      const categoryId = app.globalData.forceCategory;
+      app.globalData.forceCategory = null;
+      if (categoryId !== this.data.currentCategory) {
+        this.setData({
+          currentCategory: categoryId,
+          showSwiper: categoryId === 1
+        });
+      }
+    }
+  },
+
   // 搜索框输入事件
   onSearchInput(e) {
     this.setData({

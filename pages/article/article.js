@@ -139,6 +139,7 @@ Page({
           ) {
             // 跳转前打印参数日志
             console.log('跳转全屏参数', videoBlocks[0].src, articleData.title, articleData.description);
+            this.setData({ onlyVideo: true });
             wx.navigateTo({
               url: `/pages/article/videofullscreen?src=${encodeURIComponent(videoBlocks[0].src)}&title=${encodeURIComponent(articleData.title || '')}&desc=${encodeURIComponent(articleData.description || '')}&image=${encodeURIComponent(articleData.image || '')}`
             });
@@ -311,7 +312,15 @@ Page({
 
   // 返回列表页
   goBack() {
-    wx.navigateBack();
+    // 空白页返回时也回医术家
+    if (this.data.onlyVideo && this.data.loading && !this.data.article) {
+      getApp().globalData.forceCategory = 3;
+      wx.reLaunch({
+        url: '/pages/index/index'
+      });
+    } else {
+      wx.navigateBack();
+    }
   },
 
   /**
@@ -385,5 +394,15 @@ Page({
     });
     const newBlocks = await Promise.all(promises);
     this.setData({ contentBlocks: newBlocks });
+  },
+
+  onShow() {
+    // 只在竖版视频跳转后返回的空白详情页自动回首页（医术家）
+    if (this.data.onlyVideo && this.data.loading && !this.data.article) {
+      getApp().globalData.forceCategory = 3;
+      wx.reLaunch({
+        url: '/pages/index/index'
+      });
+    }
   }
 }); 

@@ -35,6 +35,7 @@ App({
       
       // 替换相对路径图片
       return content.replace(/(src=["'])\/uploads\//g, `$1${this.host}/uploads/`);
-    }
+    },
+    forceCategory: null
   }
 })
