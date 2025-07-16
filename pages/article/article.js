@@ -254,12 +254,15 @@ Page({
     const path = `/pages/article/article?id=${article.id}`;
     
     // 分享图片优先级：
-    // 1. 文章中的第一张图片
-    // 2. 文章的专用分享图片
-    // 3. 默认图片
+    // 1. 文章封面图（image字段）
+    // 2. 文章中的第一张图片
+    // 3. 文章的专用分享图片
+    // 4. 默认图片
     let imageUrl = DEFAULT_IMAGE;
-    if (firstImage) {
-      imageUrl = firstImage; // 使用文章中的第一张图片
+    if (article.image) {
+      imageUrl = article.image; // 优先用封面图
+    } else if (firstImage) {
+      imageUrl = firstImage; // 其次用正文第一张图片
     } else if (article.share_image) {
       imageUrl = article.share_image;
     }

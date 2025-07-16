@@ -57,11 +57,11 @@ Page({
     // 分类相关
     categories: [
       { id: 1, name: '新闻动态' },
-      { id: 3, name: '医术家' },
       { id: 7, name: '授权专家' },
       { id: 11, name: '签约专家' },
       { id: 2, name: '玉鼻优品' },
-      { id: 12, name: '学术公告' }
+      { id: 12, name: '学术公告' },
+      { id: 3, name: '     ' }
     ],
     currentCategory: 1, // 设置新闻动态为默认分类
     searchKeyword: '', // 搜索关键词
