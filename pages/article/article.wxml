@@ -28,6 +28,17 @@
             <video src="{{item.src}}" controls show-center-play-btn="true" object-fit="contain" />
           </view>
         </block>
+        <block wx:elif="{{item.type === 'image'}}">
+          <view class="image-area">
+            <image 
+              src="{{item.src}}" 
+              mode="widthFix" 
+              bindtap="previewImage" 
+              data-src="{{item.src}}"
+              show-menu-by-longpress="true"
+            />
+          </view>
+        </block>
         <block wx:elif="{{item.type === 'html'}}">
           <rich-text class="rich-content" nodes="{{item.html}}"></rich-text>
         </block>

@@ -127,6 +127,7 @@ Page({
           const { contentBlocks, imageList } = this.processContentWithVideo(articleData.content);
           this.setData({ imageList });
           await this.setVideoAspectRatios(contentBlocks);
+          
           // 判断是否只有一个竖版视频且其它内容全为空
           const videoBlocks = contentBlocks.filter(block => block.type === 'video');
           const htmlBlocksEmpty = contentBlocks
@@ -142,6 +143,23 @@ Page({
             this.setData({ onlyVideo: true });
             wx.navigateTo({
               url: `/pages/article/videofullscreen?src=${encodeURIComponent(videoBlocks[0].src)}&title=${encodeURIComponent(articleData.title || '')}&desc=${encodeURIComponent(articleData.description || '')}&image=${encodeURIComponent(articleData.image || '')}`
+            });
+            return;
+          }
+
+          // 判断是否只有图片且其它内容全为空
+          // 检查文章内容是否只包含图片标签
+          const contentWithoutImages = articleData.content.replace(/<img[^>]*>/gi, '');
+          const hasOnlyImages = imageList.length > 0 && 
+                               contentWithoutImages.replace(/<[^>]+>/g, '').replace(/\s+/g, '') === '' &&
+                               videoBlocks.length === 0;
+          
+          if (hasOnlyImages) {
+            // 跳转到邀请函页面
+            console.log('跳转邀请函页面', articleData.id, articleData.title);
+            this.setData({ onlyVideo: true });
+            wx.navigateTo({
+              url: `/pages/invitation/invitation?id=${articleData.id}`
             });
             return;
           }

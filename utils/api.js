@@ -183,9 +183,9 @@ function getPageDetail(id) {
   return new Promise((resolve, reject) => {
     wx.request({
       url: 'https://www.yubi.wang/api/page/detail',
-      method: 'GET',
+      method: 'POST',
       data: {
-        id
+        id: id
       },
       header: {
         'content-type': 'application/json',
@@ -320,4 +320,4 @@ module.exports = {
   searchArticles,
   getPageList,
   getPageDetail
-}; 
+};

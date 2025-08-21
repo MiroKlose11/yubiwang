@@ -60,9 +60,10 @@ Page({
       { id: 7, name: '授权专家' },
       { id: 11, name: '签约专家' },
       { id: 2, name: '玉鼻优品' },
-      { id: 12, name: '学术公告' },
-      { id: 3, name: '     ' }
+      { id: 12, name: '学术公告' }
     ],
+    // 隐藏的空白分类项
+    hiddenCategory: { id: 3, name: '     ' },
     currentCategory: 1, // 设置新闻动态为默认分类
     searchKeyword: '', // 搜索关键词
     isSearching: false, // 是否处于搜索模式
@@ -148,6 +149,31 @@ Page({
         title: '请输入搜索关键词',
         icon: 'none'
       });
+    }
+  },
+
+  // 切换到隐藏的空白分类
+  switchToHiddenCategory() {
+    const hiddenCategoryId = this.data.hiddenCategory.id;
+    if (this.data.currentCategory !== hiddenCategoryId) {
+      this.setData({
+        currentCategory: hiddenCategoryId,
+        searchKeyword: '', // 清空搜索词
+        isSearching: false, // 退出搜索模式
+        showSwiper: false, // 不显示轮播图
+        page: 1, // 重置页码
+        doctorPage: 1, // 重置医生列表页码
+        activeFilter: '',
+        selectedAuth: '',
+        selectedTitle: '',
+        selectedLocation: '',
+        selectedSpecialty: '',
+        selectedLetter: '',
+        filteredDoctors: []
+      });
+      
+      // 过滤文章以显示空白分类的内容
+      this.filterArticles();
     }
   },
 
@@ -293,6 +319,17 @@ Page({
       filteredArticles = articles.filter(item =>
         [6].includes(item.channel_id)
       );
+      
+      // 在文章列表最后添加图片分享页面
+      filteredArticles.push({
+        id: 'imageShare',
+        title: '2025鲁脂道年度会议',
+        image: 'https://img.yubi.wang/uploads/20250725/98e94837af3779fdf703f7895e4acee5.jpg',
+        created_at: new Date().toISOString(),
+        channel_id: 3,
+        isImageShare: true, // 标记为图片分享页面
+        uniqueKey: 'imageShare_' + currentCategory
+      });
     } else if (currentCategory === 2) {
       // 玉鼻优品 - channel_id为2 8 9 10 26的文章
       filteredArticles = articles.filter(item =>
@@ -383,7 +420,7 @@ Page({
             item.image = item.coverImg;
           }
         } else {
-          item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
+          item.image = '';
         }
 
         // 添加置顶标记，如果weigh大于0，则标记为置顶
@@ -467,6 +504,16 @@ Page({
   // 跳转到文章详情
   goToArticleDetail(e) {
     const { id } = e.currentTarget.dataset;
+    
+    // 如果是图片分享页面，跳转到 imageShare 页面
+    if (id === 'imageShare') {
+      wx.navigateTo({
+        url: '/pages/imageShare/imageShare'
+      });
+      return;
+    }
+    
+    // 普通文章跳转到文章详情页
     wx.navigateTo({
       url: `/pages/article/article?id=${id}`
     });
@@ -911,7 +958,7 @@ Page({
             item.image = `https://www.yubi.wang${item.image}`;
           }
         } else {
-          item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
+          item.image = '';
         }
 
         // 生成唯一key

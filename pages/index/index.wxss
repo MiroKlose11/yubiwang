@@ -28,6 +28,7 @@ page {
   padding: 0 20rpx;
   background-color: #f5f5f5;
   border-radius: 35rpx;
+  position: relative; /* 添加相对定位 */
 }
 
 .search-box icon {
@@ -45,6 +46,28 @@ page {
   font-size: 28rpx;
   color: #3A8FB7;
   margin-left: 10rpx;
+}
+
+/* 隐藏的空白分类项样式 */
+.hidden-category {
+  display: none !important;
+  visibility: hidden;
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+}
+
+/* 隐藏的点击区域样式 */
+.hidden-click-area {
+  position: absolute;
+  top: 50%;
+  left: 65%;
+  transform: translate(-50%, -50%);
+  width: 30rpx;
+  height: 30rpx;
+  /* background-color: rgba(255, 0, 0, 0.1); 临时添加红色半透明背景用于调试 */
+  z-index: 999;
+  pointer-events: auto;
 }
 
 /* 轮播图样式 */

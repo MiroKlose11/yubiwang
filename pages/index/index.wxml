@@ -6,7 +6,11 @@
       <icon type="search" size="16" color="#999"></icon>
       <input type="text" placeholder="请输入关键词搜索" confirm-type="search" value="{{searchKeyword}}" bindinput="onSearchInput" bindconfirm="onSearchConfirm"></input>
       <view class="search-btn" bindtap="onSearchConfirm" wx:if="{{searchKeyword}}">搜索</view>
+      <!-- 隐藏的点击区域，用于跳转到空白分类 -->
+      <view class="hidden-click-area" bindtap="switchToHiddenCategory"></view>
     </view>
+    <!-- 隐藏的空白分类项 -->
+    <view class="hidden-category" style="display: none;">{{hiddenCategory.name}}</view>
   </view>
 
   <!-- 分类导航栏 -->

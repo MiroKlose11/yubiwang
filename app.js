@@ -15,6 +15,7 @@ App({
   },
   globalData: {
     userInfo: null,
+    bgm: null, // 全局音频实例
     // 域名配置
     host: 'https://img.yubi.wang',
     // 全局图片处理方法

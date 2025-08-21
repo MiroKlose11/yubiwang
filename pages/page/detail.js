@@ -14,9 +14,7 @@ Page({
     page: null,
     loading: true,
     error: false,
-    errorMsg: '',
-    imageList: [], // 存储图片列表
-    loadedImages: 0 // 已加载图片计数
+    errorMsg: ''
   },
 
   /**
@@ -54,6 +52,14 @@ Page({
       if (result && result.code === 1 && result.data) {
         const page = result.data;
         console.log('获取到页面数据:', page);
+        console.log('页面数据的所有字段:', Object.keys(page));
+        console.log('页面数据完整内容:', JSON.stringify(page, null, 2));
+        console.log('标题相关字段:', {
+          title: page.title,
+          name: page.name,
+          subject: page.subject,
+          pagetitle: page.pagetitle
+        });
         
         // 格式化日期
         if (page.create_time) {
@@ -79,17 +85,21 @@ Page({
         });
         
         // 设置页面标题
-        if (page.title) {
-          wx.setNavigationBarTitle({
-            title: page.title
-          });
-        }
+        console.log('页面标题:', page.title);
+        // 由于后端接口未提供标题字段，使用空字符串隐藏标题
+        wx.setNavigationBarTitle({
+          title: ''
+        });
+        console.log('隐藏标题栏显示');
       } else {
         console.error('接口返回数据格式不符合预期:', result);
+        console.error('result.code:', result ? result.code : 'result为空');
+        console.error('result.data:', result ? result.data : 'result为空');
+        const errorMsg = result && result.msg ? result.msg : '数据格式错误';
         this.setData({
           loading: false,
           error: true,
-          errorMsg: result && result.msg ? result.msg : '获取内容失败'
+          errorMsg: errorMsg
         });
       }
     } catch (error) {
@@ -107,101 +117,22 @@ Page({
    */
   processContent(content) {
     if (!content) return '';
-    
-    console.log('处理前的内容片段:', content.substring(0, 200) + '...');
-    
-    // 确保图片域名正确 - 处理相对路径
-    let processedContent = content.replace(/src="\/uploads\//g, `src="${HOST}/uploads/`);
-    
-    // 处理不带/开头的相对路径
-    processedContent = processedContent.replace(/src="uploads\//g, `src="${HOST}/uploads/`);
-    
-    // 处理//开头的协议相对路径
+    // 处理相对路径为绝对路径
+    let processedContent = content.replace(/src="\/uploads\//g, 'src="https://www.yubi.wang/uploads/');
+    processedContent = processedContent.replace(/src="uploads\//g, 'src="https://www.yubi.wang/uploads/');
     processedContent = processedContent.replace(/src="\/\/www/g, 'src="https://www');
-    
-    // 为所有图片添加样式和缓存属性
-    processedContent = processedContent.replace(/<img/g, '<img mode="widthFix" show-menu-by-longpress="true" data-src="$&" style="max-width:100%;height:auto;display:block;margin:20rpx auto;" cache-mode="true"');
-    
-    console.log('处理后的内容片段:', processedContent.substring(0, 200) + '...');
-    
-    // 提取所有图片URL
-    this.extractImageUrls(processedContent);
-    
+    // 给img标签加样式（和article页一致）
+    processedContent = processedContent.replace(/<img([^>]*)>/gi, (match, attrs) => {
+      return `<img${attrs} style="max-width:100%;height:auto;display:block;margin:10rpx auto;">`;
+    });
+    // 去除多余换行和不可见字符
+    processedContent = processedContent.replace(/[\r\n\t]+/g, '');
     return processedContent;
   },
-  
-  /**
-   * 提取内容中的所有图片URL
-   */
-  extractImageUrls(content) {
-    const imgRegex = /src="([^"]+)"/g;
-    const imageList = [];
-    let match;
-    
-    while ((match = imgRegex.exec(content)) !== null) {
-      const imageUrl = match[1];
-      if (imageUrl && !imageList.includes(imageUrl)) {
-        imageList.push(imageUrl);
-      }
-    }
-    
-    console.log(`提取到${imageList.length}张图片`);
-    this.setData({ imageList });
-    
-    // 预加载图片
-    this.preloadImages(imageList);
-  },
-  
-  /**
-   * 预加载图片
-   */
-  preloadImages(imageList) {
-    if (!imageList || imageList.length === 0) return;
-    
-    let loadedCount = 0;
-    
-    imageList.forEach((imgUrl, index) => {
-      // 使用getImageInfo而不是createImage
-      wx.getImageInfo({
-        src: imgUrl,
-        success: (res) => {
-          loadedCount++;
-          console.log(`图片预加载成功 ${loadedCount}/${imageList.length}`, res.width, 'x', res.height);
-          this.setData({ loadedImages: loadedCount });
-        },
-        fail: (err) => {
-          console.error(`图片加载失败: ${imgUrl}`, err);
-          loadedCount++;
-          this.setData({ loadedImages: loadedCount });
-        }
-      });
-    });
-  },
 
-  /**
-   * 图片点击预览
-   */
-  onImageTap(e) {
-    const src = e.target.dataset.src;
-    if (!src) return;
-    
-    const { imageList } = this.data;
-    wx.previewImage({
-      current: src,
-      urls: imageList
-    });
-  },
+
   
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-    // 清除缓存变量
-    this.setData({
-      imageList: [],
-      loadedImages: 0
-    });
-  },
+
 
   /**
    * 返回列表
@@ -220,4 +151,4 @@ Page({
       path: `/pages/page/detail?id=${this.data.pageId}`
     };
   }
-}); 
+});

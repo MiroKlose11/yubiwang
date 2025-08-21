@@ -507,7 +507,7 @@ Page({
       } else if (item.coverImg) {
         item.image = item.coverImg.startsWith('/uploads/') ? `${HOST}${item.coverImg}` : item.coverImg;
       } else {
-        item.image = 'https://pic.616pic.com/ys_bnew_img/00/04/76/QcJhrXSFgb.jpg';
+        item.image = '';
       }
 
       return item;

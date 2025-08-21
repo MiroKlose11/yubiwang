@@ -6,7 +6,9 @@
     "pages/search/search",
     "pages/doctor/detail",
     "pages/page/detail",
-    "pages/article/videofullscreen"
+    "pages/article/videofullscreen",
+    "pages/imageShare/imageShare",
+    "pages/invitation/invitation"
   ],
   "window": {
     "backgroundTextStyle": "light",

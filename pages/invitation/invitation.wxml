@@ -1,0 +1,75 @@
+<!-- pages/invitation/invitation.wxml -->
+<view class="container">
+  <!-- 图片轮播区域 -->
+  <swiper 
+    class="image-container" 
+    vertical="true" 
+    duration="800" 
+    bindchange="bindchange"
+    current="{{current}}"
+    circular="{{false}}"
+    indicator-dots="{{false}}"
+    autoplay="{{false}}"
+    snap-to-edge="{{true}}"
+    easing-function="easeInOutCubic"
+  >
+    <block wx:for="{{images}}" wx:key="index">
+      <swiper-item class="swiper-item">
+        <view class="slide-wrapper {{index === current ? 'active' : ''}}" data-index="{{index}}">
+          <!-- 图片容器 -->
+          <view class="image-wrapper {{index === current ? 'current' : ''}}">
+            <image 
+              src="{{item}}" 
+              mode="aspectFill" 
+              class="fullscreen-image" 
+              lazy-load="{{true}}"
+              show-menu-by-longpress="{{true}}"
+            />
+            <!-- 高级渐变遮罩 -->
+            <view class="image-overlay"></view>
+          </view>
+          
+          <!-- 底部动态向上箭头 -->
+          <view class="bottom-arrow">
+            <view class="arrow-up"></view>
+            <view class="arrow-up arrow-up-delay"></view>
+          </view>
+          
+
+        </view>
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <!-- 右上角音符图标 - 固定在轮播外部 -->
+  <view class="music-icon {{musicPlaying ? 'playing' : 'paused'}}" bindtap="toggleMusic">
+    <view class="music-note">
+      <view class="note-head"></view>
+      <view class="note-stem"></view>
+      <view class="note-flag"></view>
+    </view>
+    <view class="music-waves">
+      <view class="wave wave-1"></view>
+      <view class="wave wave-2"></view>
+      <view class="wave wave-3"></view>
+    </view>
+  </view>
+
+  <!-- 邀请函信息 -->
+  <view class="invitation-info" wx:if="{{showInfo}}">
+    <view class="invitation-title">{{title}}</view>
+    <view class="invitation-desc" wx:if="{{description}}">{{description}}</view>
+  </view>
+  
+  <!-- 滑动提示 -->
+  <view class="scroll-indicator" wx:if="{{showScrollTip}}">
+    <text>向上滑动查看更多</text>
+  </view>
+  
+  <!-- 页面计数器 - 固定在轮播外部 -->
+  <view class="page-counter">
+    <text>{{current + 1}}</text>
+    <text class="divider">/</text>
+    <text>{{images.length}}</text>
+  </view>
+</view> 
